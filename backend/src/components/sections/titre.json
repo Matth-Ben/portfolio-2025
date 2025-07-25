@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_sections_titres",
+  "info": {
+    "displayName": "Titre"
+  },
+  "options": {},
+  "attributes": {
+    "texte": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,25 @@
+---
+import Hero from './sections/Hero.astro';
+import Services from './sections/Services.astro';
+import Contact from './sections/Contact.astro';
+import type { HeroSection, ServicesSection, ContactSection, BaseSection } from '../utils/strapi';
+
+interface Props {
+  sections: BaseSection[];
+}
+
+const { sections } = Astro.props;
+---
+
+{sections.map((section) => {
+  switch (section.__component) {
+    case 'sections.hero':
+      return <Hero section={section as HeroSection} />;
+    case 'sections.services':
+      return <Services section={section as ServicesSection} />;
+    case 'sections.contact':
+      return <Contact section={section as ContactSection} />;
+    default:
+      return null;
+  }
+})} 

@@ -1,0 +1,64 @@
+---
+// LenisProvider component for smooth scrolling
+---
+
+<script>
+  import Lenis from 'lenis';
+
+  // Initialize Lenis with basic configuration
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  });
+
+  // RAF for smooth scrolling
+  function raf(time) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+
+  requestAnimationFrame(raf);
+
+  // Expose lenis globally for other components
+  (window as any).lenis = lenis;
+
+  // Optional: Add scroll event listener
+  lenis.on('scroll', (e) => {
+    // You can add custom scroll effects here
+    // console.log(e);
+  });
+
+  // Optional: Add resize event listener
+  window.addEventListener('resize', () => {
+    lenis.resize();
+  });
+</script>
+
+<style>
+  /* Ensure smooth scrolling works properly */
+  html {
+    scroll-behavior: auto;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Optional: Add custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+</style> 

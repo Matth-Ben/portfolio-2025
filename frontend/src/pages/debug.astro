@@ -1,0 +1,144 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchPageByTitle } from '../utils/strapi';
+
+// Test de l'API Strapi
+interface DebugTest {
+  name: string;
+  status: string | number;
+  ok: boolean;
+  data?: any;
+  error?: string;
+}
+
+let debugInfo = {
+  strapiUrl: (import.meta.env as any).STRAPI_URL || 'http://strapi:1337',
+  timestamp: new Date().toISOString(),
+  tests: [] as DebugTest[]
+};
+
+// Test 1: Connexion de base
+try {
+  const healthResponse = await fetch(`${debugInfo.strapiUrl}/api/healthcheck`);
+  debugInfo.tests.push({
+    name: 'Health Check',
+    status: healthResponse.status,
+    ok: healthResponse.ok,
+    data: healthResponse.ok ? await healthResponse.json() : null
+  });
+} catch (error) {
+  debugInfo.tests.push({
+    name: 'Health Check',
+    status: 'ERROR',
+    ok: false,
+    error: error.message
+  });
+}
+
+// Test 2: Récupération des pages
+try {
+  const pagesResponse = await fetch(`${debugInfo.strapiUrl}/api/pages?populate=*`);
+  const pagesData = pagesResponse.ok ? await pagesResponse.json() : null;
+  debugInfo.tests.push({
+    name: 'Liste des pages',
+    status: pagesResponse.status,
+    ok: pagesResponse.ok,
+    data: pagesData ? {
+      count: pagesData.data?.length || 0,
+      pages: pagesData.data?.map((p: any) => ({ id: p.id, title: p.title })) || []
+    } : null
+  });
+} catch (error) {
+  debugInfo.tests.push({
+    name: 'Liste des pages',
+    status: 'ERROR',
+    ok: false,
+    error: error.message
+  });
+}
+
+// Test 3: Page Accueil
+try {
+  const pageData = await fetchPageByTitle('Accueil');
+  debugInfo.tests.push({
+    name: 'Page Accueil',
+    status: pageData ? 'FOUND' : 'NOT_FOUND',
+    ok: !!pageData,
+    data: pageData ? {
+      id: pageData.id,
+      title: pageData.title,
+      attributes: pageData
+    } : null
+  });
+} catch (error) {
+  debugInfo.tests.push({
+    name: 'Page Accueil',
+    status: 'ERROR',
+    ok: false,
+    error: error.message
+  });
+}
+---
+
+<Layout title="Debug Strapi API">
+  <div class="min-h-screen bg-gray-100 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">🔍 Debug Strapi API</h1>
+      
+      <!-- Informations générales -->
+      <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Informations générales</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <strong>URL Strapi:</strong> {debugInfo.strapiUrl}
+          </div>
+          <div>
+            <strong>Timestamp:</strong> {debugInfo.timestamp}
+          </div>
+        </div>
+      </div>
+
+      <!-- Tests -->
+      <div class="space-y-4">
+        {debugInfo.tests.map((test) => (
+          <div class={`bg-white rounded-lg shadow p-6 ${test.ok ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'}`}>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold">{test.name}</h3>
+              <span class={`px-3 py-1 rounded-full text-sm font-medium ${
+                test.ok ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {test.status}
+              </span>
+            </div>
+            
+            {test.error && (
+              <div class="bg-red-50 border border-red-200 rounded p-3 mb-4">
+                <strong>Erreur:</strong> {test.error}
+              </div>
+            )}
+            
+            {test.data && (
+              <div class="bg-gray-50 rounded p-3">
+                <strong>Données:</strong>
+                <pre class="mt-2 text-sm overflow-x-auto">{JSON.stringify(test.data, null, 2)}</pre>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4">Actions</h2>
+        <div class="space-y-2">
+          <button onclick="location.reload()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            🔄 Actualiser les tests
+          </button>
+          <a href="/" class="inline-block bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-2">
+            🏠 Retour à l'accueil
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout> 

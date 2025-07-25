@@ -1,0 +1,47 @@
+---
+import { getImageUrl } from '../../utils/media';
+import type { HeroSection } from '../../utils/strapi';
+
+interface Props {
+  section: HeroSection;
+}
+
+const { section } = Astro.props;
+
+// Utiliser l'image directement si elle existe, sinon fallback
+const imageUrl = getImageUrl(section.backgroundImage);
+const backgroundStyle = imageUrl 
+  ? `background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${imageUrl}')`
+  : 'background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #4f46e5 100%)';
+---
+
+<section class="relative text-white py-20 bg-cover bg-center bg-no-repeat" style={backgroundStyle}>
+  <div class="absolute inset-0 bg-black/20"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-6xl font-bold mb-6 fade-in">
+        {section.title || 'Bienvenue sur'} <span class="text-yellow-300">MonSite</span>
+      </h1>
+      {section.subtitle && (
+        <h2 class="text-2xl md:text-3xl mb-4 text-blue-100 fade-in">
+          {section.subtitle}
+        </h2>
+      )}
+      <p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto fade-in">
+        {section.description || 'Nous créons des expériences digitales exceptionnelles qui transforment votre vision en réalité'}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        {section.primaryButton && (
+          <a href={section.primaryButton.url || '#services'} class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            {section.primaryButton.text || 'Découvrir nos services'}
+          </a>
+        )}
+        {section.secondaryButton && (
+          <a href={section.secondaryButton.url || '/about'} class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+            {section.secondaryButton.text || 'En savoir plus'}
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+</section> 

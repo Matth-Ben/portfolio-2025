@@ -1,0 +1,36 @@
+{
+  "collectionName": "components_sections_heroes",
+  "info": {
+    "displayName": "Hero",
+    "description": "Section hero avec titre, description et boutons"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "primaryButton": {
+      "type": "component",
+      "component": "ui.button",
+      "repeatable": false
+    },
+    "secondaryButton": {
+      "type": "component",
+      "component": "ui.button",
+      "repeatable": false
+    },
+    "backgroundImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    }
+  }
+} 

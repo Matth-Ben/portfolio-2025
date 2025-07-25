@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_ui_contact_infos",
+  "info": {
+    "displayName": "Contact Info",
+    "description": "Informations de contact (email, téléphone, adresse)"
+  },
+  "options": {},
+  "attributes": {
+    "email": {
+      "type": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "text"
+    },
+    "socialLinks": {
+      "type": "json"
+    }
+  }
+} 

@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_ui_buttons",
+  "info": {
+    "displayName": "Button",
+    "description": "Bouton réutilisable avec texte et lien"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "url": {
+      "type": "string"
+    },
+    "variant": {
+      "type": "enumeration",
+      "enum": ["primary", "secondary", "outline"],
+      "default": "primary"
+    },
+    "icon": {
+      "type": "string"
+    }
+  }
+} 

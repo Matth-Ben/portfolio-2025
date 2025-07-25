@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_sections_contacts",
+  "info": {
+    "displayName": "Contact",
+    "description": "Section de contact avec formulaire et informations"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "subtitle": {
+      "type": "string"
+    },
+    "contactInfo": {
+      "type": "component",
+      "component": "ui.contact-info",
+      "repeatable": false
+    },
+    "showForm": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+} 

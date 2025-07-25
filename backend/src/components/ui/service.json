@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_ui_services",
+  "info": {
+    "displayName": "Service",
+    "description": "Service individuel avec icône, titre et description"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "color": {
+      "type": "enumeration",
+      "enum": ["blue", "green", "purple", "red", "yellow", "indigo"],
+      "default": "blue"
+    }
+  }
+} 

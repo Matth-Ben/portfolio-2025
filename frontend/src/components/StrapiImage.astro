@@ -1,0 +1,44 @@
+---
+import { getImageUrl, getOptimizedImageUrl } from '../utils/media';
+import type { StrapiImage } from '../utils/media';
+
+export interface Props {
+  image: StrapiImage | null | undefined;
+  format?: 'thumbnail' | 'small' | 'medium' | 'large' | 'original';
+  alt?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  sizes?: string;
+}
+
+const { 
+  image, 
+  format = 'medium', 
+  alt = '', 
+  class: className = '', 
+  loading = 'lazy',
+  sizes = '100vw'
+} = Astro.props;
+
+const imageUrl = format === 'original' 
+  ? getImageUrl(image) 
+  : getOptimizedImageUrl(image, format);
+
+const finalAlt = alt || image?.attributes?.alternativeText || 'Image';
+---
+
+{imageUrl ? (
+  <img 
+    src={imageUrl} 
+    alt={finalAlt}
+    class={className}
+    loading={loading}
+    sizes={sizes}
+    width={image?.attributes?.width}
+    height={image?.attributes?.height}
+  />
+) : (
+  <div class={`bg-gray-200 flex items-center justify-center ${className}`}>
+    <span class="text-gray-500 text-sm">Image non disponible</span>
+  </div>
+)} 

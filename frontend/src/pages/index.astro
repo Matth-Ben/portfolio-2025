@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { fetchPageByTitle } from '../utils/strapi';
+import DynamicZone from '../components/DynamicZone.astro';
+
+const pageData = await fetchPageByTitle('Accueil');
+---
+
+<Layout title="Accueil - MonSite" description="Bienvenue sur MonSite, votre partenaire digital de confiance">
+  {pageData?.sections && <DynamicZone sections={pageData.sections} />}
+</Layout>
+
+

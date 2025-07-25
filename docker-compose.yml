@@ -1,0 +1,60 @@
+services:
+  astro:
+    build:
+      context: ./frontend
+    container_name: astro
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - STRAPI_URL=http://strapi:1337
+    command: npm run dev:docker
+    depends_on:
+      - strapi
+    networks:
+      - app-network
+
+  strapi:
+    build:
+      context: ./backend
+    container_name: strapi
+    ports:
+      - '1337:1337'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/public/uploads:/app/public/uploads
+    environment:
+      NODE_ENV: development
+      VITE_PORT: 1337
+      DATABASE_CLIENT: sqlite
+      DATABASE_FILENAME: .tmp/data.db
+      JWT_SECRET: your-jwt-secret
+      ADMIN_JWT_SECRET: your-admin-jwt-secret
+      APP_KEYS: your-app-keys
+      API_TOKEN_SALT: your-api-token-salt
+    command: npm run develop
+    networks:
+      - app-network
+
+  setup:
+    image: node:20
+    container_name: setup
+    volumes:
+      - ./frontend:/frontend
+      - ./backend:/backend
+      - ./setup.sh:/setup.sh
+    working_dir: /
+    entrypoint: /bin/sh
+    command: /setup.sh
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
