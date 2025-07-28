@@ -79,6 +79,35 @@ export interface PageData {
   publishedAt: string;
 }
 
+// Interfaces pour les projets
+export interface ProjectData {
+  id: number;
+  attributes: {
+    title: string;
+    slug: string;
+    description?: string;
+    content?: string;
+    excerpt?: string;
+    featuredImage?: {
+      data: StrapiImage;
+    };
+    gallery?: {
+      data: StrapiImage[];
+    };
+    technologies?: string[];
+    githubUrl?: string;
+    liveUrl?: string;
+    startDate?: string;
+    endDate?: string;
+    status?: 'draft' | 'in-progress' | 'completed' | 'archived';
+    featured?: boolean;
+    seo?: any;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  };
+}
+
 export async function fetchPageByTitle(title: string): Promise<PageData | null> {
   const url = `${STRAPI_API_URL}/api/pages?filters[title][$eq]=${encodeURIComponent(title)}&populate[sections][populate]=*`;
   
@@ -121,6 +150,77 @@ export async function fetchPageSections(pageId: number): Promise<any[]> {
     return sections;
   } catch (error) {
     console.error('Erreur lors de la récupération des sections:', error);
+    return [];
+  }
+}
+
+/**
+ * Récupère tous les projets
+ */
+export async function fetchProjects(): Promise<ProjectData[]> {
+  try {
+    const url = `${STRAPI_API_URL}/api/projects?populate=*&sort=createdAt:desc`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Erreur lors de la récupération des projets:', response.status, response.statusText);
+      return [];
+    }
+    
+    const data: StrapiResponse<ProjectData> = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des projets:', error);
+    return [];
+  }
+}
+
+/**
+ * Récupère un projet par son slug
+ */
+export async function fetchProjectBySlug(slug: string): Promise<ProjectData | null> {
+  try {
+    const url = `${STRAPI_API_URL}/api/projects?filters[slug][$eq]=${encodeURIComponent(slug)}&populate=*`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Erreur lors de la récupération du projet:', response.status, response.statusText);
+      return null;
+    }
+    
+    const data: StrapiResponse<ProjectData> = await response.json();
+    
+    if (data.data && data.data.length > 0) {
+      return data.data[0];
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du projet:', error);
+    return null;
+  }
+}
+
+/**
+ * Récupère tous les slugs des projets pour getStaticPaths
+ */
+export async function fetchProjectSlugs(): Promise<string[]> {
+  try {
+    const url = `${STRAPI_API_URL}/api/projects?fields=slug`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Erreur lors de la récupération des slugs:', response.status, response.statusText);
+      return [];
+    }
+    
+    const data: StrapiResponse<{ slug: string }> = await response.json();
+    return data.data?.map(project => project.slug) || [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des slugs:', error);
     return [];
   }
 } 

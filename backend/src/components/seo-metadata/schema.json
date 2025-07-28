@@ -1,0 +1,74 @@
+{
+  "kind": "component",
+  "collectionName": "components_seo_metadata",
+  "info": {
+    "displayName": "SEO Metadata",
+    "description": "Composant pour gérer les métadonnées SEO",
+    "icon": "search"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "description": {
+      "type": "text",
+      "maxLength": 160
+    },
+    "keywords": {
+      "type": "text"
+    },
+    "author": {
+      "type": "string"
+    },
+    "ogTitle": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "ogDescription": {
+      "type": "text",
+      "maxLength": 160
+    },
+    "ogImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "ogType": {
+      "type": "enumeration",
+      "enum": ["website", "article", "profile", "book"],
+      "default": "website"
+    },
+    "twitterCard": {
+      "type": "enumeration",
+      "enum": ["summary", "summary_large_image", "app", "player"],
+      "default": "summary_large_image"
+    },
+    "twitterSite": {
+      "type": "string"
+    },
+    "twitterCreator": {
+      "type": "string"
+    },
+    "publishedTime": {
+      "type": "datetime"
+    },
+    "modifiedTime": {
+      "type": "datetime"
+    },
+    "section": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "robots": {
+      "type": "string",
+      "default": "index, follow"
+    },
+    "canonical": {
+      "type": "string"
+    }
+  }
+} 

@@ -60,6 +60,53 @@ export interface SectionsTitre extends Struct.ComponentSchema {
   };
 }
 
+export interface SeoMetadataSchema extends Struct.ComponentSchema {
+  collectionName: 'components_seo_metadata';
+  info: {
+    description: 'Composant pour g\u00E9rer les m\u00E9tadonn\u00E9es SEO';
+    displayName: 'SEO Metadata';
+    icon: 'search';
+  };
+  attributes: {
+    author: Schema.Attribute.String;
+    canonical: Schema.Attribute.String;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
+    keywords: Schema.Attribute.Text;
+    modifiedTime: Schema.Attribute.DateTime;
+    ogDescription: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 160;
+      }>;
+    ogImage: Schema.Attribute.Media<'images'>;
+    ogTitle: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
+    ogType: Schema.Attribute.Enumeration<
+      ['website', 'article', 'profile', 'book']
+    > &
+      Schema.Attribute.DefaultTo<'website'>;
+    publishedTime: Schema.Attribute.DateTime;
+    robots: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'index, follow'>;
+    section: Schema.Attribute.String;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
+    twitterCard: Schema.Attribute.Enumeration<
+      ['summary', 'summary_large_image', 'app', 'player']
+    > &
+      Schema.Attribute.DefaultTo<'summary_large_image'>;
+    twitterCreator: Schema.Attribute.String;
+    twitterSite: Schema.Attribute.String;
+  };
+}
+
 export interface UiButton extends Struct.ComponentSchema {
   collectionName: 'components_ui_buttons';
   info: {
@@ -113,6 +160,7 @@ declare module '@strapi/strapi' {
       'sections.hero': SectionsHero;
       'sections.services': SectionsServices;
       'sections.titre': SectionsTitre;
+      'seo-metadata.schema': SeoMetadataSchema;
       'ui.button': UiButton;
       'ui.contact-info': UiContactInfo;
       'ui.service': UiService;

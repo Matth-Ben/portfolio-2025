@@ -1,0 +1,263 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SEO from '../../components/SEO.astro';
+import { fetchProjectSlugs, fetchProjectBySlug, STRAPI_PUBLIC_URL } from '../../utils/strapi';
+
+export async function getStaticPaths() {
+  // Récupérer tous les slugs des projets pour générer les routes statiques
+  const slugs = await fetchProjectSlugs();
+  
+  return slugs.map((slug) => ({
+    params: { slug }
+  }));
+}
+
+const { slug } = Astro.params;
+const project = await fetchProjectBySlug(slug);
+
+// Si le projet n'existe pas, retourner une erreur 404
+if (!project) {
+  return Astro.redirect('/404');
+}
+
+const { attributes } = project;
+
+// Générer les métadonnées SEO pour le projet
+const seoData = {
+  title: attributes.title,
+  description: attributes.excerpt || attributes.description,
+  keywords: attributes.technologies?.join(', ') || 'projet, portfolio',
+  type: "website" as const,
+  image: attributes.featuredImage?.data?.attributes?.url || "/images/project-default.jpg",
+  publishedTime: attributes.startDate,
+  modifiedTime: attributes.updatedAt
+};
+---
+
+<Layout title={attributes.title}>
+  <SEO {...seoData} />
+  
+  <main class="container mx-auto px-4 py-8">
+    <!-- Header du projet -->
+    <header class="mb-12">
+      <div class="max-w-4xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="mb-6">
+          <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="/" class="hover:text-gray-700">Accueil</a></li>
+            <li>/</li>
+            <li><a href="/projects" class="hover:text-gray-700">Projets</a></li>
+            <li>/</li>
+            <li class="text-gray-900">{attributes.title}</li>
+          </ol>
+        </nav>
+
+        <!-- Titre et description -->
+        <div class="text-center mb-8">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">{attributes.title}</h1>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            {attributes.description}
+          </p>
+        </div>
+
+        <!-- Métadonnées du projet -->
+        <div class="flex flex-wrap justify-center gap-6 text-sm text-gray-500 mb-8">
+          {attributes.startDate && (
+            <div class="flex items-center">
+              <span class="font-medium">Date de début:</span>
+              <span class="ml-2">{new Date(attributes.startDate).toLocaleDateString('fr-FR')}</span>
+            </div>
+          )}
+          {attributes.endDate && (
+            <div class="flex items-center">
+              <span class="font-medium">Date de fin:</span>
+              <span class="ml-2">{new Date(attributes.endDate).toLocaleDateString('fr-FR')}</span>
+            </div>
+          )}
+          {attributes.status && (
+            <div class="flex items-center">
+              <span class="font-medium">Statut:</span>
+              <span class={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                attributes.status === 'completed' ? 'bg-green-100 text-green-800' :
+                attributes.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {attributes.status === 'completed' ? 'Terminé' :
+                 attributes.status === 'in-progress' ? 'En cours' :
+                 attributes.status === 'draft' ? 'Brouillon' : 'Archivé'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <!-- Liens externes -->
+        <div class="flex justify-center gap-4 mb-8">
+          {attributes.liveUrl && (
+            <a 
+              href={attributes.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Voir le projet
+            </a>
+          )}
+          {attributes.githubUrl && (
+            <a 
+              href={attributes.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            >
+              Code source
+            </a>
+          )}
+        </div>
+      </div>
+    </header>
+
+    <!-- Image principale -->
+    {attributes.featuredImage && (
+      <div class="max-w-4xl mx-auto mb-12">
+        <img 
+          src={`${STRAPI_PUBLIC_URL}${attributes.featuredImage.data.attributes.url}`}
+          alt={attributes.title}
+          class="w-full h-96 object-cover rounded-lg shadow-lg"
+        />
+      </div>
+    )}
+
+    <!-- Contenu principal -->
+    <div class="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <!-- Contenu principal -->
+      <div class="lg:col-span-2">
+        <article class="prose prose-lg max-w-none">
+          <div set:html={attributes.content} />
+        </article>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="space-y-8">
+        <!-- Technologies -->
+        {attributes.technologies && attributes.technologies.length > 0 && (
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Technologies utilisées</h3>
+            <div class="flex flex-wrap gap-2">
+              {attributes.technologies.map((tech) => (
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Galerie -->
+        {attributes.gallery && attributes.gallery.data && attributes.gallery.data.length > 0 && (
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Galerie</h3>
+            <div class="grid grid-cols-2 gap-4">
+              {attributes.gallery.data.map((image) => (
+                <img 
+                  src={`${STRAPI_PUBLIC_URL}${image.attributes.url}`}
+                  alt={image.attributes.alternativeText || attributes.title}
+                  class="w-full h-24 object-cover rounded"
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Informations du projet -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations</h3>
+          <dl class="space-y-2 text-sm">
+            {attributes.startDate && (
+              <div>
+                <dt class="font-medium text-gray-700">Date de début</dt>
+                <dd class="text-gray-600">{new Date(attributes.startDate).toLocaleDateString('fr-FR')}</dd>
+              </div>
+            )}
+            {attributes.endDate && (
+              <div>
+                <dt class="font-medium text-gray-700">Date de fin</dt>
+                <dd class="text-gray-600">{new Date(attributes.endDate).toLocaleDateString('fr-FR')}</dd>
+              </div>
+            )}
+            {attributes.status && (
+              <div>
+                <dt class="font-medium text-gray-700">Statut</dt>
+                <dd class="text-gray-600">
+                  <span class={`px-2 py-1 rounded-full text-xs font-medium ${
+                    attributes.status === 'completed' ? 'bg-green-100 text-green-800' :
+                    attributes.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {attributes.status === 'completed' ? 'Terminé' :
+                     attributes.status === 'in-progress' ? 'En cours' :
+                     attributes.status === 'draft' ? 'Brouillon' : 'Archivé'}
+                  </span>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Navigation entre projets -->
+    <div class="max-w-4xl mx-auto mt-16 pt-8 border-t border-gray-200">
+      <div class="flex justify-between">
+        <a href="/projects" class="text-blue-600 hover:text-blue-800 font-medium">
+          ← Retour aux projets
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .prose {
+    color: #374151;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    color: #111827;
+    font-weight: 600;
+  }
+  .prose a {
+    color: #2563eb;
+    text-decoration: none;
+  }
+  .prose a:hover {
+    text-decoration: underline;
+  }
+  .prose ul, .prose ol {
+    padding-left: 1.5rem;
+  }
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+  .prose blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    font-style: italic;
+    color: #6b7280;
+  }
+  .prose code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  .prose pre {
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+  }
+  .prose pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+</style> 
