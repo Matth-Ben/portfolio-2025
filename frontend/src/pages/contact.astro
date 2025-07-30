@@ -4,15 +4,6 @@ import RichText from '../components/RichText.astro';
 import { fetchContactData } from '../utils/strapi';
 
 const contactData = await fetchContactData();
-
-// Logs côté serveur
-console.log('Contact Data:', contactData);
-console.log('Contact Data Email:', contactData?.Email);
-console.log('Contact Data Social:', {
-  Twitter: contactData?.Twitter,
-  Linkedin: contactData?.Linkedin,
-  Github: contactData?.Github
-});
 ---
 
 <Layout title="Contact - Portfolio" description="Contactez-moi pour discuter de votre projet ou pour toute question">
@@ -90,9 +81,4 @@ console.log('Contact Data Social:', {
       </div>
     </div>
   </section>
-
-  <script>
-    // Logs côté client pour déboguer
-    console.log('Page Contact chargée');
-  </script>
 </Layout> 

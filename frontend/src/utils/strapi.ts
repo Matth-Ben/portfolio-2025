@@ -1,3 +1,5 @@
+import type { StrapiImage } from './media';
+
 const STRAPI_API_URL = 'http://strapi:1337';
 export const STRAPI_PUBLIC_URL = 'http://strapi:1337';
 
@@ -36,8 +38,6 @@ export interface ContactInfo {
   address?: string;
   socialLinks?: any;
 }
-
-import type { StrapiImage } from './media';
 
 export interface BaseSection {
   id: number;
@@ -153,7 +153,7 @@ export async function fetchPageSections(pageId: number): Promise<any[]> {
  */
 export async function fetchProjects(): Promise<ProjectData[]> {
   try {
-    const url = `${STRAPI_API_URL}/api/projects?populate=*&sort=createdAt:desc`;
+    const url = `${STRAPI_API_URL}/api/projects?populate=*&sort=createdAt:desc&pagination[pageSize]=100`;
     
     const response = await fetch(url);
     

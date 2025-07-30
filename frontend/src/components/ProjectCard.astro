@@ -31,20 +31,35 @@ const { project } = Astro.props;
     </div>
   )}
   <div class="p-6">
-    <h3 class="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">
+      <a href={`/projects/${project.slug}`} class="hover:text-indigo-600 transition-colors">
+        {project.title}
+      </a>
+    </h3>
     <p class="text-gray-600 mb-4">{project.excerpt || project.description}</p>
-    {project.liveUrl && (
+    <div class="flex gap-2">
       <a 
-        href={project.liveUrl} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+        href={`/projects/${project.slug}`}
+        class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors"
       >
-        Voir le projet
+        Voir les détails
         <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
         </svg>
       </a>
-    )}
+      {project.liveUrl && (
+        <a 
+          href={project.liveUrl} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          Voir le projet
+          <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      )}
+    </div>
   </div>
 </div> 

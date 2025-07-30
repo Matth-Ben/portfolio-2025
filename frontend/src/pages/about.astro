@@ -4,9 +4,6 @@ import RichText from '../components/RichText.astro';
 import { fetchAboutData } from '../utils/strapi';
 
 const aboutData = await fetchAboutData();
-
-// Logs côté serveur
-console.log('About Data:', aboutData);
 ---
 
 <Layout title="À propos - Portfolio" description="Découvrez mon parcours, mes compétences et ma passion pour le développement web">
@@ -149,11 +146,6 @@ console.log('About Data:', aboutData);
       )}
     </div>
   </section>
-
-  <script>
-    // Logs côté client pour déboguer
-    console.log('Page About chargée');
-  </script>
 </Layout>
 
  

@@ -7,11 +7,6 @@ const homeData = await fetchHomeData();
 
 // Récupérer les projets liés à la page Home via la relation
 const featuredProjects = homeData?.projects || [];
-
-// Logs côté serveur
-console.log('Home Data:', homeData);
-console.log('Featured Projects from Home:', featuredProjects);
-console.log('Projects structure:', featuredProjects.length > 0 ? Object.keys(featuredProjects[0]) : 'No projects');
 ---
 
 <Layout title="Accueil - Portfolio" description="Bienvenue sur mon portfolio, découvrez mes projets et compétences">
