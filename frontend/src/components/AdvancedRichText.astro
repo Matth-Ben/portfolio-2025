@@ -1,0 +1,60 @@
+---
+interface Props {
+  content: any;
+  class?: string;
+}
+
+const { content, class: className = '' } = Astro.props;
+
+// Fonction pour rendre le contenu riche avec différents types de blocs
+function renderRichTextBlock(block: any): string {
+  if (!block || !block.type) return '';
+  
+  switch (block.type) {
+    case 'paragraph':
+      if (block.children) {
+        return block.children.map((child: any) => child.text || '').join('');
+      }
+      return '';
+    case 'heading':
+      if (block.children) {
+        const text = block.children.map((child: any) => child.text || '').join('');
+        const level = block.level || 1;
+        return `<h${level}>${text}</h${level}>`;
+      }
+      return '';
+    case 'list':
+      if (block.children) {
+        const listType = block.format === 'ordered' ? 'ol' : 'ul';
+        const items = block.children.map((item: any) => {
+          if (item.children) {
+            return `<li>${item.children.map((child: any) => child.text || '').join('')}</li>`;
+          }
+          return '';
+        }).join('');
+        return `<${listType}>${items}</${listType}>`;
+      }
+      return '';
+    default:
+      if (block.children) {
+        return block.children.map((child: any) => child.text || '').join('');
+      }
+      return '';
+  }
+}
+
+function renderRichTextContent(content: any): string {
+  if (!content) return '';
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content.map(block => renderRichTextBlock(block)).join('\n\n');
+  }
+  return '';
+}
+
+const renderedContent = renderRichTextContent(content);
+---
+
+{renderedContent && (
+  <div class={className} set:html={renderedContent} />
+)} 

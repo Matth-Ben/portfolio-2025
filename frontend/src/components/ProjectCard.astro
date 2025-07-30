@@ -1,125 +1,50 @@
 ---
-export interface Props {
+import { getImageUrl } from '../utils/media';
+
+interface Props {
   project: {
     id: number;
-    attributes: {
-      title: string;
-      slug: string;
-      description?: string;
-      excerpt?: string;
-      featuredImage?: {
-        data?: {
-          attributes: {
-            url: string;
-          };
-        };
-      };
-      technologies?: string[];
-      status?: string;
-      liveUrl?: string;
-      githubUrl?: string;
-    };
+    title: string;
+    slug: string;
+    description?: string;
+    content?: string;
+    excerpt?: string;
+    liveUrl?: string;
+    featuredImage?: any;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
   };
-  strapiUrl: string;
 }
 
-const { project, strapiUrl } = Astro.props;
-const { attributes } = project;
-const featuredImage = attributes.featuredImage?.data?.attributes?.url;
+const { project } = Astro.props;
 ---
 
-<article class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-  <!-- Image -->
-  <div class="relative h-48 overflow-hidden">
-    {featuredImage ? (
+<div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+  {project.featuredImage && (
+    <div class="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
       <img 
-        src={`${strapiUrl}${featuredImage}`}
-        alt={attributes.title}
+        src={getImageUrl(project.featuredImage) || ''}
+        alt={project.title}
         class="w-full h-full object-cover"
       />
-    ) : (
-      <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-        <span class="text-gray-400">Aucune image</span>
-      </div>
-    )}
-    
-    {/* Badge status */}
-    {attributes.status && (
-      <div class="absolute top-4 right-4">
-        <span class={`px-2 py-1 text-xs font-medium rounded-full ${
-          attributes.status === 'completed' ? 'bg-green-100 text-green-800' :
-          attributes.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
-          'bg-gray-100 text-gray-800'
-        }`}>
-          {attributes.status === 'completed' ? 'Terminé' :
-           attributes.status === 'in-progress' ? 'En cours' :
-           attributes.status === 'draft' ? 'Brouillon' : 'Archivé'}
-        </span>
-      </div>
-    )}
-  </div>
-
-  <!-- Contenu -->
-  <div class="p-6">
-    <h2 class="text-xl font-semibold text-gray-900 mb-2">
-      <a href={`/projects/${attributes.slug}`} class="hover:text-blue-600 transition-colors">
-        {attributes.title}
-      </a>
-    </h2>
-    
-    <p class="text-gray-600 mb-4 line-clamp-3">
-      {attributes.excerpt || attributes.description}
-    </p>
-
-    <!-- Technologies -->
-    {attributes.technologies && attributes.technologies.length > 0 && (
-      <div class="mb-4">
-        <div class="flex flex-wrap gap-2">
-          {attributes.technologies.slice(0, 3).map((tech) => (
-            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-              {tech}
-            </span>
-          ))}
-          {attributes.technologies.length > 3 && (
-            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-              +{attributes.technologies.length - 3}
-            </span>
-          )}
-        </div>
-      </div>
-    )}
-
-    <!-- Liens -->
-    <div class="flex gap-4">
-      {attributes.liveUrl && (
-        <a 
-          href={attributes.liveUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-        >
-          Voir le projet →
-        </a>
-      )}
-      {attributes.githubUrl && (
-        <a 
-          href={attributes.githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-gray-600 hover:text-gray-800 text-sm font-medium"
-        >
-          Code source
-        </a>
-      )}
     </div>
+  )}
+  <div class="p-6">
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
+    <p class="text-gray-600 mb-4">{project.excerpt || project.description}</p>
+    {project.liveUrl && (
+      <a 
+        href={project.liveUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition-colors"
+      >
+        Voir le projet
+        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    )}
   </div>
-</article>
-
-<style>
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style> 
+</div> 

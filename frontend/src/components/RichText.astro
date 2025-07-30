@@ -1,0 +1,22 @@
+---
+import { extractRichTextWithLineBreaks } from '../utils/richText';
+
+interface Props {
+  content: any;
+  class?: string;
+}
+
+const { content, class: className = '' } = Astro.props;
+
+const textContent = extractRichTextWithLineBreaks(content);
+---
+
+{textContent && (
+  <div class={className}>
+    {textContent.split('\n\n').map((paragraph, index) => (
+      <p>
+        {paragraph}
+      </p>
+    ))}
+  </div>
+)} 

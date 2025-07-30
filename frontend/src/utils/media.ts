@@ -1,5 +1,8 @@
 import { STRAPI_PUBLIC_URL } from './strapi';
 
+// URL pour les images (accessible depuis le navigateur)
+const STRAPI_IMAGE_URL = 'http://localhost:1337';
+// URL pour les requêtes API (réseau Docker interne)
 const STRAPI_URL = STRAPI_PUBLIC_URL;
 
 // Cache pour les images déjà récupérées
@@ -102,8 +105,8 @@ export function getImageUrl(image: StrapiImage | null | undefined): string | nul
     return imageUrl;
   }
   
-  // Sinon, construire l'URL complète
-  return `${STRAPI_URL}${imageUrl}`;
+  // Sinon, construire l'URL complète avec l'URL publique pour les images
+  return `${STRAPI_IMAGE_URL}${imageUrl}`;
 }
 
 /**
@@ -146,7 +149,7 @@ export function getOptimizedImageUrl(
     if (formatUrl.startsWith('http')) {
       return formatUrl;
     }
-    return `${STRAPI_URL}${formatUrl}`;
+    return `${STRAPI_IMAGE_URL}${formatUrl}`;
   }
   
   // Fallback vers l'image originale

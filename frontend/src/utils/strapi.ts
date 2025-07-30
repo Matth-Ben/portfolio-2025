@@ -1,5 +1,5 @@
 const STRAPI_API_URL = 'http://strapi:1337';
-export const STRAPI_PUBLIC_URL = 'http://localhost:1337';
+export const STRAPI_PUBLIC_URL = 'http://strapi:1337';
 
 export interface StrapiResponse<T> {
   data: T[];
@@ -82,30 +82,24 @@ export interface PageData {
 // Interfaces pour les projets
 export interface ProjectData {
   id: number;
-  attributes: {
-    title: string;
-    slug: string;
-    description?: string;
-    content?: string;
-    excerpt?: string;
-    featuredImage?: {
-      data: StrapiImage;
-    };
-    gallery?: {
-      data: StrapiImage[];
-    };
-    technologies?: string[];
-    githubUrl?: string;
-    liveUrl?: string;
-    startDate?: string;
-    endDate?: string;
-    status?: 'draft' | 'in-progress' | 'completed' | 'archived';
-    featured?: boolean;
-    seo?: any;
-    createdAt: string;
-    updatedAt: string;
-    publishedAt: string;
-  };
+  title: string;
+  slug: string;
+  description?: string;
+  content?: string;
+  excerpt?: string;
+  featuredImage?: StrapiImage;
+  gallery?: StrapiImage[];
+  technologies?: string[];
+  githubUrl?: string;
+  liveUrl?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: 'draft' | 'in-progress' | 'completed' | 'archived';
+  featured?: boolean;
+  seo?: any;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 export async function fetchPageByTitle(title: string): Promise<PageData | null> {
@@ -222,5 +216,103 @@ export async function fetchProjectSlugs(): Promise<string[]> {
   } catch (error) {
     console.error('Erreur lors de la récupération des slugs:', error);
     return [];
+  }
+}
+
+// Interfaces pour les single types
+export interface HomeData {
+  id: number;
+  projects?: ProjectData[];
+  SEO?: any;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+export interface AboutData {
+  id: number;
+  Titre?: any;
+  Description?: any;
+  Competences?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+export interface ContactData {
+  id: number;
+  Github?: string;
+  Twitter?: string;
+  Linkedin?: string;
+  Titre?: any;
+  Email?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+/**
+ * Récupère les données de la page Home (single type)
+ */
+export async function fetchHomeData(): Promise<HomeData | null> {
+  try {
+    const url = `${STRAPI_API_URL}/api/home?populate[projects][populate][featuredImage][populate]=*`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Erreur lors de la récupération de la page Home:', response.status, response.statusText);
+      return null;
+    }
+    
+    const data = await response.json();
+    return data.data || null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la page Home:', error);
+    return null;
+  }
+}
+
+/**
+ * Récupère les données de la page About (single type)
+ */
+export async function fetchAboutData(): Promise<AboutData | null> {
+  try {
+    const url = `${STRAPI_API_URL}/api/about?populate=*`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Erreur lors de la récupération de la page About:', response.status, response.statusText);
+      return null;
+    }
+    
+    const data = await response.json();
+    return data.data || null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la page About:', error);
+    return null;
+  }
+}
+
+/**
+ * Récupère les données de la page Contact (single type)
+ */
+export async function fetchContactData(): Promise<ContactData | null> {
+  try {
+    const url = `${STRAPI_API_URL}/api/contact?populate=*`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.error('Erreur lors de la récupération de la page Contact:', response.status, response.statusText);
+      return null;
+    }
+    
+    const data = await response.json();
+    return data.data || null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la page Contact:', error);
+    return null;
   }
 } 

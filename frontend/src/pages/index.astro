@@ -1,13 +1,53 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { fetchPageByTitle } from '../utils/strapi';
-import DynamicZone from '../components/DynamicZone.astro';
+import { fetchHomeData } from '../utils/strapi';
+import ProjectCard from '../components/ProjectCard.astro';
 
-const pageData = await fetchPageByTitle('Accueil');
+const homeData = await fetchHomeData();
+
+// Récupérer les projets liés à la page Home via la relation
+const featuredProjects = homeData?.projects || [];
+
+// Logs côté serveur
+console.log('Home Data:', homeData);
+console.log('Featured Projects from Home:', featuredProjects);
+console.log('Projects structure:', featuredProjects.length > 0 ? Object.keys(featuredProjects[0]) : 'No projects');
 ---
 
-<Layout title="Accueil - MonSite" description="Bienvenue sur MonSite, votre partenaire digital de confiance">
-  {pageData?.sections && <DynamicZone sections={pageData.sections} />}
-</Layout>
+<Layout title="Accueil - Portfolio" description="Bienvenue sur mon portfolio, découvrez mes projets et compétences">
+  <!-- Section Projets Récents -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          Mes Projets Récents
+        </h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Découvrez quelques-uns de mes derniers projets et réalisations
+        </p>
+      </div>
 
+      {featuredProjects.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredProjects.map((project) => (
+            <ProjectCard project={project} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-gray-500 text-lg">Aucun projet disponible pour le moment.</p>
+          <p class="text-gray-400 text-sm mt-2">Les projets seront affichés ici une fois créés dans Strapi.</p>
+        </div>
+      )}
 
+      <div class="text-center mt-12">
+        <a href="/about" class="inline-flex items-center px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+          En savoir plus sur moi
+          <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout> 

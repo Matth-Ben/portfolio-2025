@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+set -e
 
 echo "🛠 Création Astro..."
 
@@ -11,7 +13,7 @@ else
   echo "📦 Initialisation de Astro..."
 
   # Créer un package.json minimal
-  cat <<EOF > package.json
+  cat > package.json << 'EOF'
 {
   "name": "astro-frontend",
   "type": "module",
@@ -33,11 +35,32 @@ EOF
 
   # Créer structure Astro minimale si pas encore là
   mkdir -p src/pages src/styles
-  [ ! -f src/pages/index.astro ] && echo '<!DOCTYPE html><html><head><title>Astro</title></head><body><h1>Hello Astro</h1></body></html>' > src/pages/index.astro
-  [ ! -f src/styles/global.css ] && echo '@tailwind base;\n@tailwind components;\n@tailwind utilities;' > src/styles/global.css
+  
+  if [ ! -f src/pages/index.astro ]; then
+    cat > src/pages/index.astro << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Astro</title>
+</head>
+<body>
+  <h1>Hello Astro</h1>
+</body>
+</html>
+EOF
+  fi
+  
+  if [ ! -f src/styles/global.css ]; then
+    cat > src/styles/global.css << 'EOF'
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+EOF
+  fi
 
   # Créer config Astro si absente
-  [ ! -f astro.config.mjs ] && cat <<EOF > astro.config.mjs
+  if [ ! -f astro.config.mjs ]; then
+    cat > astro.config.mjs << 'EOF'
 import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 
@@ -45,9 +68,11 @@ export default defineConfig({
   integrations: [tailwind()],
 });
 EOF
+  fi
 
   # Créer config Tailwind si absente
-  [ ! -f tailwind.config.js ] && cat <<EOF > tailwind.config.js
+  if [ ! -f tailwind.config.js ]; then
+    cat > tailwind.config.js << 'EOF'
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{astro,js,ts}"],
@@ -57,6 +82,7 @@ export default {
   plugins: [],
 };
 EOF
+  fi
 
   echo "✅ Astro installé."
 fi
@@ -66,7 +92,7 @@ if [ -f Dockerfile ]; then
   echo "📦 Dockerfile déjà présent dans /frontend."
 else
   echo "📝 Création du Dockerfile pour Astro..."
-  cat <<EOF > Dockerfile
+  cat > Dockerfile << 'EOF'
 FROM node:20-alpine
 
 WORKDIR /app
@@ -111,7 +137,7 @@ if [ -f Dockerfile ]; then
   echo "📦 Dockerfile déjà présent dans /backend."
 else
   echo "📝 Création du Dockerfile pour Strapi..."
-  cat <<EOF > Dockerfile
+  cat > Dockerfile << 'EOF'
 FROM node:20-alpine
 
 WORKDIR /app
@@ -128,4 +154,4 @@ EOF
 fi
 
 echo ""
-echo "✅ Setup complet terminé 🎉"
+echo "✅ Setup complet terminé 🎉" 
