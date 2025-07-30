@@ -4,8 +4,7 @@
   "info": {
     "singularName": "project",
     "pluralName": "projects",
-    "displayName": "Project",
-    "description": "Projets du portfolio"
+    "displayName": "Project"
   },
   "options": {
     "draftAndPublish": true
@@ -13,9 +12,7 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string",
-      "required": true,
-      "unique": true
+      "type": "string"
     },
     "slug": {
       "type": "uid",
@@ -25,29 +22,20 @@
       "type": "text"
     },
     "content": {
-      "type": "richtext"
-    },
-    "excerpt": {
-      "type": "text",
-      "maxLength": 200
+      "type": "blocks"
     },
     "featuredImage": {
       "type": "media",
       "multiple": false,
       "allowedTypes": [
-        "images"
+        "images",
+        "files",
+        "videos",
+        "audios"
       ]
     },
     "liveUrl": {
       "type": "string"
-    },
-    "sections": {
-      "type": "dynamiczone",
-      "components": [
-        "sections.hero",
-        "sections.services",
-        "sections.contact"
-      ]
     }
   }
 }
