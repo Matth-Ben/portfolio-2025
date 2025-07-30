@@ -11,6 +11,11 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "projects": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::project.project"
+    },
     "SEO": {
       "type": "component",
       "component": "seo-metadata.schema",

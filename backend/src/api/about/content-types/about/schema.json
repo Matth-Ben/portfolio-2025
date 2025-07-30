@@ -10,5 +10,15 @@
     "draftAndPublish": true
   },
   "pluginOptions": {},
-  "attributes": {}
+  "attributes": {
+    "Titre": {
+      "type": "blocks"
+    },
+    "Description": {
+      "type": "blocks"
+    },
+    "Competences": {
+      "type": "string"
+    }
+  }
 }

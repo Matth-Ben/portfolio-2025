@@ -10,5 +10,21 @@
     "draftAndPublish": true
   },
   "pluginOptions": {},
-  "attributes": {}
+  "attributes": {
+    "Github": {
+      "type": "string"
+    },
+    "Twitter": {
+      "type": "string"
+    },
+    "Linkedin": {
+      "type": "string"
+    },
+    "Titre": {
+      "type": "blocks"
+    },
+    "Email": {
+      "type": "email"
+    }
+  }
 }

@@ -34,36 +34,12 @@
     "featuredImage": {
       "type": "media",
       "multiple": false,
-      "allowedTypes": ["images"]
-    },
-    "gallery": {
-      "type": "media",
-      "multiple": true,
-      "allowedTypes": ["images"]
-    },
-    "technologies": {
-      "type": "json"
-    },
-    "githubUrl": {
-      "type": "string"
+      "allowedTypes": [
+        "images"
+      ]
     },
     "liveUrl": {
       "type": "string"
-    },
-    "startDate": {
-      "type": "date"
-    },
-    "endDate": {
-      "type": "date"
-    },
-    "status": {
-      "type": "enumeration",
-      "enum": ["draft", "in-progress", "completed", "archived"],
-      "default": "draft"
-    },
-    "featured": {
-      "type": "boolean",
-      "default": false
     },
     "sections": {
       "type": "dynamiczone",
@@ -74,4 +50,4 @@
       ]
     }
   }
-} 
+}
