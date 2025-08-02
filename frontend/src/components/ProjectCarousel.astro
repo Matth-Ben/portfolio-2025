@@ -1,0 +1,458 @@
+---
+import { getImageUrl } from '../utils/media';
+
+interface Props {
+  projects: any[];
+}
+
+const { projects } = Astro.props;
+---
+
+<div class="project-carousel relative">
+    <!-- Conteneur du carrousel -->
+    <div class="carousel-container overflow-hidden">
+        <div class="carousel-track flex transition-transform duration-500 ease-in-out" id="carousel-track">
+            {projects.length > 1 && (
+                <div class="carousel-slide min-w-full flex-shrink-0">
+                    <div class="relative h-dvh bg-gradient-to-br from-gray-900 to-gray-800">
+                                            <!-- Image de fond du projet -->
+                        {projects[projects.length - 1].featuredImage && (
+                        <img 
+                            src={getImageUrl(projects[projects.length - 1].featuredImage)}
+                            alt={projects[projects.length - 1].title || 'Projet'}
+                            class="absolute inset-0 w-full h-full object-cover opacity-40"
+                        />
+                        )}
+                        
+                        <!-- Overlay avec contenu -->
+                        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Projets originaux */}
+            {projects.map((project, index) => (
+                <div class="carousel-slide min-w-full flex-shrink-0">
+                    <div class="relative h-dvh bg-gradient-to-br from-gray-900 to-gray-800">
+                        <!-- Image de fond du projet -->
+                        {project.featuredImage && (
+                        <img 
+                            src={getImageUrl(project.featuredImage)}
+                            alt={project.title || 'Projet'}
+                            class="absolute inset-0 w-full h-full object-cover opacity-40"
+                        />
+                        )}
+                        
+                        <!-- Overlay avec contenu -->
+                        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                    </div>
+                </div>
+            ))}
+            
+            {/* Clone du premier projet à la fin pour l'effet de boucle */}
+            {projects.length > 1 && (
+                <div class="carousel-slide min-w-full flex-shrink-0">
+                    <div class="relative h-dvh bg-gradient-to-br from-gray-900 to-gray-800">
+                        <!-- Image de fond du projet -->
+                        {projects[0].featuredImage && (
+                        <img 
+                            src={getImageUrl(projects[0].featuredImage)}
+                            alt={projects[0].title || 'Projet'}
+                            class="absolute inset-0 w-full h-full object-cover opacity-40"
+                        />
+                        )}
+                        
+                        <!-- Overlay avec contenu -->
+                        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                    </div>
+                </div>
+            )}
+        </div>
+    </div>
+
+         <!-- Navigation et informations -->
+    {projects.length > 1 && (
+        <div class="absolute top-1/2 left-0 right-0 px-[2rem]">
+            <div class="relative">
+                <div class="relative">
+                    <div class="relative w-full h-[1px] bg-[#EAE8DE] opacity-30"></div>
+                    <div class="progress-bar absolute top-0 left-0 h-full bg-white transition-all duration-100 ease-linear" style="width: 0%"></div>
+                </div>
+                 
+                 {/* Titres des projets et numéro */}
+                 <div class="">
+                     <div class="text-white">
+                         <div class="project-info flex items-center justify-between">
+                            <h4 class="text-lg font-medium project-title">
+                                {projects[0].title || 'Projet sans titre'}
+                            </h4>
+                            <p class="text-sm opacity-70 project-counter">
+                                1 sur {projects.length} projets sélectionnés
+                            </p>
+                          </div>
+                          
+                          {/* Bouton Discover */}
+                          {projects[0].slug && (
+                              <a 
+                                  href={`/projects/${projects[0].slug}`}
+                                  class="discover-btn"
+                              >
+                                 Discover
+                             </a>
+                         )}
+                     </div>
+                 </div>
+                 
+                 {/* Boutons de navigation */}
+                 <div class="w-full">
+                     <div class="flex items-center justify-between">
+                         <button 
+                             class="carousel-btn carousel-btn-prev text-white hover:text-gray-300 transition-colors"
+                             aria-label="Projet précédent"
+                         >
+                             Previous
+                         </button>
+                         
+                         <button 
+                             class="carousel-btn carousel-btn-next text-white hover:text-gray-300 transition-colors"
+                             aria-label="Projet suivant"
+                         >
+                             Next
+                         </button>
+                     </div>
+                 </div>
+                 
+                 {/* Bouton All projects */}
+                 <div>
+                     <a 
+                         href="/projects"
+                         class="all-projects-btn flex items-center gap-[1rem]"
+                     >
+                         All projects
+                         <span class="w-[0.8rem] h-[1rem] bg-white"></span>
+                     </a>
+                 </div>
+             </div>
+         </div>
+     )}
+</div>
+
+   <script define:vars={{ projects }}>
+    // Variables globales pour le carrousel
+    let currentSlide = 0;
+    let slideCount = 0;
+    let projectsData = projects;
+    let progressTween = null;
+
+         function initCarousel() {
+       const track = document.getElementById('carousel-track');
+       const slides = track?.querySelectorAll('.carousel-slide');
+       const prevBtn = document.querySelector('.carousel-btn-prev');
+       const nextBtn = document.querySelector('.carousel-btn-next');
+       const progressBar = document.querySelector('.progress-bar');
+       
+       slideCount = slides?.length || 0;
+       const originalSlideCount = slideCount - 2; // Soustraire les 2 slides clonés
+       
+       if (slideCount <= 3) return; // Au moins 3 slides (1 original + 2 clones)
+       
+       // Variables pour la barre de progression
+       const slideDuration = 5; // 5 secondes
+       
+       // Commencer à l'index 1 (premier projet original)
+       currentSlide = 1;
+       updateTrack();
+       updateProjectInfo();
+       bindEvents();
+       
+               // S'assurer que la barre de progression commence à 0%
+        if (progressBar) {
+          progressBar.style.width = '0%';
+        }
+        
+        // Démarrer la barre de progression après un petit délai pour s'assurer que tout est prêt
+        setTimeout(() => {
+          startProgressBar();
+        }, 100);
+      
+             function bindEvents() {
+         prevBtn?.addEventListener('click', () => {
+           // Animer rapidement la barre vers 0% puis changer de slide
+           animateProgressBarToStart();
+         });
+         nextBtn?.addEventListener('click', () => {
+           // Animer rapidement la barre jusqu'au bout puis changer de slide
+           animateProgressBarToEnd();
+         });
+       }
+      
+             function goToSlide(index) {
+         currentSlide = index + 1; // +1 car on commence à l'index 1
+         updateTrack();
+         updateProjectInfo();
+         resetProgressBar();
+         
+         // Délai avant de démarrer la barre de progression
+         setTimeout(() => {
+           startProgressBar();
+         }, 500);
+       }
+      
+             function nextSlide() {
+         currentSlide++;
+         
+         // Si on arrive au clone du premier projet (dernier slide)
+         if (currentSlide >= slideCount - 1) {
+           setTimeout(() => {
+             if (track) {
+               track.style.transition = 'none';
+               currentSlide = 1; // Retour au premier projet original
+               updateTrack();
+               setTimeout(() => {
+                 if (track) {
+                   track.style.transition = 'transform 0.5s ease-in-out';
+                 }
+               }, 10);
+             }
+           }, 500);
+         }
+         
+         updateTrack();
+         updateProjectInfo();
+         resetProgressBar();
+         
+         // Délai avant de démarrer la barre de progression
+         setTimeout(() => {
+           startProgressBar();
+         }, 500);
+       }
+      
+             function prevSlide() {
+         currentSlide--;
+         
+         // Si on arrive au clone du dernier projet (premier slide)
+         if (currentSlide <= 0) {
+           setTimeout(() => {
+             if (track) {
+               track.style.transition = 'none';
+               currentSlide = slideCount - 2; // Retour au dernier projet original
+               updateTrack();
+               setTimeout(() => {
+                 if (track) {
+                   track.style.transition = 'transform 0.5s ease-in-out';
+                 }
+               }, 10);
+             }
+           }, 500);
+         }
+         
+         updateTrack();
+         updateProjectInfo();
+         resetProgressBar();
+         
+         // Délai avant de démarrer la barre de progression
+         setTimeout(() => {
+           startProgressBar();
+         }, 500);
+       }
+      
+      function updateTrack() {
+        if (track) {
+          track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+      }
+      
+      function updateProjectInfo() {
+        const projectTitle = document.querySelector('.project-title');
+        const projectCounter = document.querySelector('.project-counter');
+        const discoverBtn = document.querySelector('.discover-btn');
+        
+        // Calculer l'index du projet original (en tenant compte des clones)
+        let originalIndex = currentSlide - 1;
+        if (originalIndex < 0) originalIndex = originalSlideCount - 1;
+        if (originalIndex >= originalSlideCount) originalIndex = 0;
+        
+        // Mettre à jour le titre
+        if (projectTitle) {
+          const project = projectsData[originalIndex];
+          projectTitle.textContent = project?.title || 'Projet sans titre';
+        }
+        
+        // Mettre à jour le compteur
+        if (projectCounter) {
+          projectCounter.textContent = `(0${originalIndex + 1} / 0${originalSlideCount})`;
+        }
+        
+        // Mettre à jour le lien du bouton Discover
+        if (discoverBtn) {
+          const project = projectsData[originalIndex];
+          if (project?.slug) {
+            discoverBtn.href = `/projects/${project.slug}`;
+          }
+        }
+      }
+      
+                function startProgressBar() {
+       if (progressBar) {
+         // Arrêter l'animation précédente si elle existe
+         if (progressTween) {
+           progressTween.kill();
+         }
+         
+         // Forcer la barre à 0%
+         progressBar.style.width = '0%';
+         
+         // Vérifier si GSAP est disponible
+         if (typeof gsap !== 'undefined') {
+           // Animer la barre de progression avec GSAP
+           progressTween = gsap.to(progressBar, {
+             width: '100%',
+             duration: slideDuration,
+             ease: 'none',
+             onComplete: () => {
+               // Attendre un petit délai pour que la barre soit visible à 100%
+               setTimeout(() => {
+                 nextSlide();
+               }, 200);
+             }
+           });
+         } else {
+           // Fallback sans GSAP - utiliser setInterval
+           console.warn('GSAP non disponible, utilisation du fallback setInterval');
+           let startTime = Date.now();
+           const interval = setInterval(() => {
+             const elapsed = Date.now() - startTime;
+             const progress = Math.min((elapsed / (slideDuration * 1000)) * 100, 100);
+             progressBar.style.width = `${progress}%`;
+             
+             if (progress >= 100) {
+               clearInterval(interval);
+               setTimeout(() => {
+                 nextSlide();
+               }, 200);
+             }
+           }, 50);
+           
+           // Stocker l'interval pour pouvoir l'arrêter
+           progressTween = { kill: () => clearInterval(interval) };
+         }
+       }
+     }
+      
+      function resetProgressBar() {
+        if (progressTween) {
+          progressTween.kill();
+        }
+        if (progressBar) {
+          progressBar.style.width = '0%';
+        }
+      }
+      
+             function animateProgressBarToEnd() {
+         if (progressBar) {
+           // Arrêter l'animation précédente si elle existe
+           if (progressTween) {
+             progressTween.kill();
+           }
+           
+           // Vérifier si GSAP est disponible
+           if (typeof gsap !== 'undefined') {
+             // Animer rapidement la barre jusqu'à 100%
+             progressTween = gsap.to(progressBar, {
+               width: '100%',
+               duration: 0.15, // Animation plus rapide de 0.15 secondes
+               ease: 'power2.out',
+               onComplete: () => {
+                 // Attendre un petit délai puis changer de slide
+                 setTimeout(() => {
+                   nextSlide();
+                 }, 100);
+               }
+             });
+           } else {
+             // Fallback sans GSAP - animation rapide avec setInterval
+             const currentWidth = parseFloat(progressBar.style.width) || 0;
+             const targetWidth = 100;
+             const duration = 150; // 150ms
+             const startTime = Date.now();
+             const startWidth = currentWidth;
+             
+             const interval = setInterval(() => {
+               const elapsed = Date.now() - startTime;
+               const progress = Math.min(elapsed / duration, 1);
+               const newWidth = startWidth + (targetWidth - startWidth) * progress;
+               progressBar.style.width = `${newWidth}%`;
+               
+               if (progress >= 1) {
+                 clearInterval(interval);
+                 setTimeout(() => {
+                   nextSlide();
+                 }, 100);
+               }
+             }, 16); // ~60fps
+             
+             // Stocker l'interval pour pouvoir l'arrêter
+             progressTween = { kill: () => clearInterval(interval) };
+           }
+         }
+       }
+       
+       function animateProgressBarToStart() {
+         if (progressBar) {
+           // Arrêter l'animation précédente si elle existe
+           if (progressTween) {
+             progressTween.kill();
+           }
+           
+           // Vérifier si GSAP est disponible
+           if (typeof gsap !== 'undefined') {
+             // Animer rapidement la barre vers 0%
+             progressTween = gsap.to(progressBar, {
+               width: '0%',
+               duration: 0.15, // Animation plus rapide de 0.15 secondes
+               ease: 'power2.out',
+               onComplete: () => {
+                 // Attendre un petit délai puis changer de slide
+                 setTimeout(() => {
+                   prevSlide();
+                 }, 100);
+               }
+             });
+           } else {
+             // Fallback sans GSAP - animation rapide avec setInterval
+             const currentWidth = parseFloat(progressBar.style.width) || 0;
+             const targetWidth = 0;
+             const duration = 150; // 150ms
+             const startTime = Date.now();
+             const startWidth = currentWidth;
+             
+             const interval = setInterval(() => {
+               const elapsed = Date.now() - startTime;
+               const progress = Math.min(elapsed / duration, 1);
+               const newWidth = startWidth + (targetWidth - startWidth) * progress;
+               progressBar.style.width = `${newWidth}%`;
+               
+               if (progress >= 1) {
+                 clearInterval(interval);
+                 setTimeout(() => {
+                   prevSlide();
+                 }, 100);
+               }
+             }, 16); // ~60fps
+             
+             // Stocker l'interval pour pouvoir l'arrêter
+             progressTween = { kill: () => clearInterval(interval) };
+           }
+         }
+       }
+       
+       function pauseProgressBar() {
+         if (progressTween) {
+           progressTween.kill();
+         }
+       }
+    }
+    
+    // Initialiser le carrousel quand le DOM est chargé
+    document.addEventListener('DOMContentLoaded', initCarousel);
+</script>
