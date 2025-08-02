@@ -12,6 +12,12 @@ const featuredProjects = homeData?.projects || [];
 <Layout title="Accueil - Portfolio" description="Bienvenue sur mon portfolio, découvrez mes projets et compétences">
   <!-- Section Projets Récents -->
   <section>
+    <nav class="absolute top-1/2 left-0 right-0 z-10 px-[1rem] md:px-[2rem] -translate-y-full pb-[2rem]">
+      <ul class="flex justify-center justify-between w-full text-white">
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
     {featuredProjects.length > 0 ? (
       <ProjectCarousel projects={featuredProjects} />
     ) : (

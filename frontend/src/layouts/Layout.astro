@@ -20,11 +20,15 @@ const { title, description = "Site web moderne créé avec Astro et Tailwind CSS
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script>
+      // Initialiser GSAP globalement
+      import { gsap } from 'gsap';
+      window.gsap = gsap;
+    </script>
   </head>
   <body class="bg-gray-50">
     <LenisProvider />
     <ScrollAnimations />
-    <Navigation />
     <main>
       <slot />
     </main>
