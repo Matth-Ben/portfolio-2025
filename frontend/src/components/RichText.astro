@@ -4,19 +4,23 @@ import { extractRichTextWithLineBreaks } from '../utils/richText';
 interface Props {
   content: any;
   class?: string;
+  tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'div' | 'span';
 }
 
-const { content, class: className = '' } = Astro.props;
+const { content, class: className = '', tag = 'p' } = Astro.props;
 
 const textContent = extractRichTextWithLineBreaks(content);
 ---
 
 {textContent && (
-  <div class={className}>
-    {textContent.split('\n\n').map((paragraph, index) => (
-      <p>
-        {paragraph}
-      </p>
-    ))}
+  <div>
+    {textContent.split('\n\n').map((paragraph, index) => {
+      const Tag = tag;
+      return (
+        <Tag class={className}>
+          {paragraph}
+        </Tag>
+      );
+    })}
   </div>
 )} 

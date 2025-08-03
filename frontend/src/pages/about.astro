@@ -7,145 +7,69 @@ const aboutData = await fetchAboutData();
 ---
 
 <Layout title="À propos - Portfolio" description="Découvrez mon parcours, mes compétences et ma passion pour le développement web">
-  <!-- Mon Parcours -->
-  <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+  <div class="grid grid-cols-8 md:grid-cols-12 gap">
+    <div class="relative col-span-7 md:col-span-11">
+      <!-- Mes Compétences -->
+      <section class="absolute left-0 top-0 w-full p-[2rem]">
+        <div class="text-center">
+          {aboutData?.Competences ? (
+            <div class="ts-body">
+              {aboutData.Competences}
+            </div>
+          ) : (
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              Aucune compétence disponible
+            </div>
+          )}
+        </div>
+      </section>
+      
+      <!-- Mon Parcours -->
+      <section class="flex flex-col items-center justify-center w-full h-dvh">
         <div>
           {aboutData?.Titre ? (
-            <div class="prose prose-lg mb-6">
-              <RichText content={aboutData.Titre} />
+            <div class="text-center">
+              <RichText content={aboutData.Titre} tag="h1" class="ts-big" />
             </div>
           ) : (
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 fade-in">
               Mon Parcours
             </h2>
           )}
-          
-          {aboutData?.Description ? (
-            <div class="prose prose-lg text-gray-600 fade-in">
-              <RichText content={aboutData.Description} />
+        </div>
+        <div class="text-center mt-[4rem]">
+          {aboutData?.Competences ? (
+            <div class="ts-body">
+              {aboutData.Competences}
             </div>
           ) : (
-            <div class="fade-in">
-              <p class="text-lg text-gray-600 mb-6">
-                Passionné par la technologie depuis mon plus jeune âge, j'ai commencé mon voyage dans le développement web il y a plusieurs années. 
-                Chaque projet est pour moi une opportunité d'apprendre et de créer quelque chose d'unique.
-              </p>
-              <p class="text-lg text-gray-600 mb-6">
-                J'ai eu la chance de travailler sur des projets variés, allant de sites web simples à des applications complexes, 
-                en passant par des plateformes e-commerce et des applications mobiles.
-              </p>
-              <p class="text-lg text-gray-600">
-                Mon approche combine créativité, expertise technique et attention aux détails pour créer des solutions 
-                qui répondent parfaitement aux besoins de mes clients.
-              </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              Aucune compétence disponible
             </div>
           )}
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Mes Compétences -->
-  <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          Mes Compétences
-        </h2>
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-          Les outils et technologies que j'utilise au quotidien
-        </p>
-      </div>
-
-      {aboutData?.Competences ? (
-        <div class="prose prose-lg max-w-none text-center">
-          <div class="bg-gray-50 p-8 rounded-xl">
-            {aboutData.Competences}
+      </section>
+    
+      <section class="absolute left-0 bottom-0 w-full p-[2rem]">
+        <div class="grid grid-cols-8 md:grid-cols-11 gap">
+          <div class="col-span-8 md:col-span-3">
+            {aboutData?.Description ? (
+              <div>
+                <RichText content={aboutData.Description} class="ts-body" />
+              </div>
+            ) : (
+              <div class="fade-in">
+                <p class="text-lg text-gray-600 mb-6">
+                  Passionné par la technologie depuis mon plus jeune âge, j'ai commencé mon voyage dans le développement web il y a plusieurs années. 
+                  Chaque projet est pour moi une opportunité d'apprendre et de créer quelque chose d'unique.
+                </p>
+              </div>
+            )}
           </div>
         </div>
-      ) : (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Langages -->
-          <div class="text-center">
-            <h3 class="text-xl font-semibold text-gray-900 mb-6">Langages</h3>
-            <div class="space-y-3">
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">JavaScript/TypeScript</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Python</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">PHP</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">HTML/CSS</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Frameworks -->
-          <div class="text-center">
-            <h3 class="text-xl font-semibold text-gray-900 mb-6">Frameworks</h3>
-            <div class="space-y-3">
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">React/Next.js</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Vue.js/Nuxt.js</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Node.js/Express</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Laravel</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Outils -->
-          <div class="text-center">
-            <h3 class="text-xl font-semibold text-gray-900 mb-6">Outils</h3>
-            <div class="space-y-3">
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Git/GitHub</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Docker</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">VS Code</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Figma</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Services -->
-          <div class="text-center">
-            <h3 class="text-xl font-semibold text-gray-900 mb-6">Services</h3>
-            <div class="space-y-3">
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">AWS/Vercel</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Strapi CMS</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">MongoDB/MySQL</span>
-              </div>
-              <div class="bg-gray-50 p-3 rounded-lg">
-                <span class="text-gray-700 font-medium">Stripe/PayPal</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </section>
     </div>
-  </section>
+  </div>
 </Layout>
 
  

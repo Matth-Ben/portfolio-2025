@@ -14,6 +14,16 @@ html {
     font-size: 10px;
 }
 
+::selection {
+  background-color: #EAE8DE;
+  color: #232323;
+}
+
+::-moz-selection {
+  background-color: #EAE8DE;
+  color: #232323;
+}
+
 /* ===================================
    CLASSES CUSTOM
    =================================== */
