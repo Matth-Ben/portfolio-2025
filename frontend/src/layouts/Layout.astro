@@ -2,6 +2,7 @@
 import Navigation from '../components/Navigation.astro';
 import LenisProvider from '../components/LenisProvider.astro';
 import ScrollAnimations from '../components/ScrollAnimations.astro';
+import '../styles/global.css';
 
 export interface Props {
   title: string;
@@ -26,7 +27,7 @@ const { title, description = "Site web moderne créé avec Astro et Tailwind CSS
       window.gsap = gsap;
     </script>
   </head>
-  <body class="bg-gray-50">
+  <body class="bg-primary text-secondary">
     <LenisProvider />
     <ScrollAnimations />
     <main>

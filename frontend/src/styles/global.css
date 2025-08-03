@@ -1,7 +1,70 @@
+/* ===================================
+   IMPORTS
+   =================================== */
+@import './fonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ===================================
+   CONFIGURATION GLOBALE
+   =================================== */
 html {
     font-size: 10px;
+}
+
+/* ===================================
+   CLASSES CUSTOM
+   =================================== */
+@layer utilities {
+    /* Couleurs */
+    .bg-primary {
+      background-color: #232323;
+    }
+    .bg-secondary {
+      background-color: #EAE8DE;
+    }
+    .text-primary {
+      color: #232323;
+    }
+    .text-secondary {
+      color: #EAE8DE;
+    }
+    .border-primary {
+      border-color: #232323;
+    }
+    .border-secondary {
+      border-color: #EAE8DE;
+    }
+    
+    /* Tailles de texte custom */
+    .ts-title {
+      font-size: 8rem;
+      line-height: 6rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .ts-body {
+      font-size: 1.4rem;
+      line-height: 1.4rem;
+      text-transform: uppercase;
+      font-weight: 400;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .ts-little {
+      font-size: 1.2rem;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 2%;
+      font-weight: 400;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .ts-big {
+      font-size: 20rem;
+      line-height: 16rem;
+      text-transform: uppercase;
+      font-family: 'IBM Plex Mono', monospace;
+    }
 }
