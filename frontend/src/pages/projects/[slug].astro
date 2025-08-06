@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { fetchProjectBySlug, fetchProjectSlugs } from '../../utils/strapi';
 import { getImageUrl } from '../../utils/media';
+import { getLoaderData } from '../../utils/loaderImages';
 import RichText from '../../components/RichText.astro';
 
 export async function getStaticPaths() {
@@ -15,9 +16,16 @@ const project = await fetchProjectBySlug(slug);
 if (!project) {
   return Astro.redirect('/404');
 }
+
+const loaderData = await getLoaderData('single-project', slug);
 ---
 
-<Layout title={`${project.title} - Portfolio`} description={project.excerpt || project.description}>
+<Layout 
+  title={`${project.title} - Portfolio`} 
+  description={project.excerpt || project.description}
+  loaderImageUrl={loaderData.imageUrl}
+  pageType="single-project"
+>
   <main class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
     <section class="bg-white border-b">

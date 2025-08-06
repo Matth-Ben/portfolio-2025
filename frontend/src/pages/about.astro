@@ -2,11 +2,18 @@
 import Layout from '../layouts/Layout.astro';
 import RichText from '../components/RichText.astro';
 import { fetchAboutData } from '../utils/strapi';
+import { getLoaderData } from '../utils/loaderImages';
 
 const aboutData = await fetchAboutData();
+const loaderData = await getLoaderData('about');
 ---
 
-<Layout title="À propos - Portfolio" description="Découvrez mon parcours, mes compétences et ma passion pour le développement web">
+<Layout 
+  title="À propos - Portfolio" 
+  description="Découvrez mon parcours, mes compétences et ma passion pour le développement web"
+  loaderImageUrl={loaderData.imageUrl}
+  pageType="about"
+>
   <div class="grid grid-cols-8 md:grid-cols-12 gap">
     <div class="relative col-span-7 md:col-span-11">
       <!-- Mes Compétences -->

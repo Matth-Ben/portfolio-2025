@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getLoaderData } from '../utils/loaderImages';
+
+const loaderData = await getLoaderData('home');
+---
+
+<Layout 
+  title="Test Loader" 
+  description="Page de test pour le loader"
+  loaderImageUrl={loaderData.imageUrl}
+  pageType="home"
+>
+  <div class="min-h-screen flex items-center justify-center">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-4">Test du Loader</h1>
+      <p class="text-lg mb-4">URL de l'image du loader :</p>
+      <p class="text-sm bg-gray-100 p-4 rounded break-all">
+        {loaderData.imageUrl || 'Aucune image trouvée'}
+      </p>
+      <p class="text-sm text-gray-500 mt-2">
+        Type de page : {loaderData.pageType}
+      </p>
+    </div>
+  </div>
+</Layout> 

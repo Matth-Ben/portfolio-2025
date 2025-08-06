@@ -1,21 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { fetchHomeData } from '../utils/strapi';
+import { getLoaderData } from '../utils/loaderImages';
 import ProjectCarousel from '../components/ProjectCarousel.astro';
 
 const homeData = await fetchHomeData();
+const loaderData = await getLoaderData('home');
 
 // Récupérer les projets liés à la page Home via la relation
 const featuredProjects = homeData?.projects || [];
 ---
 
-<Layout title="Accueil - Portfolio" description="Bienvenue sur mon portfolio, découvrez mes projets et compétences">
+<Layout 
+  title="Accueil - Portfolio" 
+  description="Bienvenue sur mon portfolio, découvrez mes projets et compétences"
+  loaderImageUrl={loaderData.imageUrl}
+  pageType="home"
+>
   <!-- Section Projets Récents -->
   <section>
     <nav class="absolute top-1/2 left-0 right-0 z-10 px-[1rem] md:px-[2rem] -translate-y-full pb-[2rem]">
       <ul class="flex justify-center justify-between w-full">
-        <li><a class="ts-little" href="/about">About</a></li>
-        <li><a class="ts-little" href="/contact">Contact</a></li>
+        <li><a class="ts-little transition-link" href="/about">About</a></li>
+        <li><a class="ts-little transition-link" href="/contact">Contact</a></li>
       </ul>
     </nav>
     {featuredProjects.length > 0 ? (
@@ -27,4 +34,20 @@ const featuredProjects = homeData?.projects || [];
       </div>
     )}
   </section>
-</Layout> 
+</Layout>
+
+<script>
+  import { transitions } from '../utils/transitions';
+
+  // Animation d'entrée pour les liens de navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.transition-link');
+    if (navLinks.length > 0) {
+      transitions.staggerFadeUp(Array.from(navLinks), {
+        duration: 0.6,
+        delay: 0.1
+      });
+    }
+  });
+</script>
+ 

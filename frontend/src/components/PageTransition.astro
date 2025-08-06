@@ -1,0 +1,119 @@
+---
+// Composant de transition de page avec GSAP
+---
+
+<div id="page-transition" class="fixed inset-0 z-50 pointer-events-none">
+  <div id="transition-overlay" class="absolute inset-0 bg-primary transform translate-y-full"></div>
+</div>
+
+<script>
+  // Fonction pour initialiser les transitions de page
+  function initPageTransitions() {
+    const transitionOverlay = document.getElementById('transition-overlay');
+    
+    if (!transitionOverlay) return;
+
+    // Animation d'entrée de la page
+    function pageEnter() {
+      window.gsap.set(transitionOverlay, { y: '100%' });
+      window.gsap.to(transitionOverlay, {
+        y: '0%',
+        duration: 0.6,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          // Animation de sortie
+          window.gsap.to(transitionOverlay, {
+            y: '-100%',
+            duration: 0.6,
+            ease: 'power2.inOut',
+            delay: 0.1
+          });
+        }
+      });
+    }
+
+    // Animation de sortie de la page
+    function pageExit() {
+      window.gsap.set(transitionOverlay, { y: '-100%' });
+      window.gsap.to(transitionOverlay, {
+        y: '0%',
+        duration: 0.6,
+        ease: 'power2.inOut'
+      });
+    }
+
+    // Animation d'entrée du contenu principal
+    function animatePageContent() {
+      const mainContent = document.querySelector('main');
+      if (!mainContent) return;
+
+      window.gsap.set(mainContent, { 
+        opacity: 0, 
+        y: 50 
+      });
+      
+      window.gsap.to(mainContent, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        delay: 0.3
+      });
+    }
+
+    // Initialiser l'animation d'entrée au chargement de la page
+    // Attendre que le loader soit terminé
+    function startPageTransition() {
+      const loader = document.getElementById('page-loader');
+      if (loader && loader.style.display !== 'none') {
+        // Attendre que le loader soit masqué
+        setTimeout(startPageTransition, 100);
+        return;
+      }
+      
+      pageEnter();
+      animatePageContent();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startPageTransition);
+    } else {
+      startPageTransition();
+    }
+
+    // Gérer les transitions lors de la navigation
+    if (typeof window !== 'undefined' && window.history) {
+      let isTransitioning = false;
+
+      // Intercepter les clics sur les liens internes
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const link = target?.closest('a');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) return;
+
+        e.preventDefault();
+        
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        // Animation de sortie
+        pageExit();
+        
+        setTimeout(() => {
+          window.location.href = href;
+        }, 600);
+      });
+
+      // Réinitialiser le flag lors du chargement d'une nouvelle page
+      window.addEventListener('pageshow', () => {
+        isTransitioning = false;
+      });
+    }
+  }
+
+  // Initialiser les transitions
+  initPageTransitions();
+</script> 

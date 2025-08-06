@@ -1,15 +1,23 @@
 ---
-import Navigation from '../components/Navigation.astro';
 import LenisProvider from '../components/LenisProvider.astro';
 import ScrollAnimations from '../components/ScrollAnimations.astro';
+import PageTransition from '../components/PageTransition.astro';
+import PageLoader from '../components/PageLoader.astro';
 import '../styles/global.css';
 
 export interface Props {
   title: string;
   description?: string;
+  loaderImageUrl?: string;
+  pageType?: 'home' | 'projects' | 'single-project' | 'about' | 'contact';
 }
 
-const { title, description = "Site web moderne créé avec Astro et Tailwind CSS" } = Astro.props;
+const { 
+  title, 
+  description = "Site web moderne créé avec Astro et Tailwind CSS",
+  loaderImageUrl = '',
+  pageType = 'home'
+} = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -21,6 +29,9 @@ const { title, description = "Site web moderne créé avec Astro et Tailwind CSS
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    
+
+    
     <script>
       // Initialiser GSAP globalement
       import { gsap } from 'gsap';
@@ -28,9 +39,11 @@ const { title, description = "Site web moderne créé avec Astro et Tailwind CSS
     </script>
   </head>
   <body class="bg-primary text-secondary">
+    <PageLoader imageUrl={loaderImageUrl} pageType={pageType} />
+    <!-- <PageTransition /> -->
     <LenisProvider />
     <ScrollAnimations />
-    <main>
+    <main id="swup">
       <slot />
     </main>
   </body>

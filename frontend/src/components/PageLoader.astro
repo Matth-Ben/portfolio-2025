@@ -1,0 +1,113 @@
+---
+// Composant de loader personnalisé avec image de fond
+export interface Props {
+  imageUrl?: string;
+  pageType?: 'home' | 'projects' | 'single-project' | 'about' | 'contact';
+}
+
+const { imageUrl, pageType = 'home' } = Astro.props;
+---
+
+<div id="page-loader" class="fixed inset-0 z-[60] bg-primary flex items-center justify-center">
+  <div id="loader-image-container" class="relative w-full h-full overflow-hidden">
+    {imageUrl && (
+      <img 
+        id="loader-image" 
+        src={imageUrl} 
+        alt="Loading..." 
+        class="absolute inset-0 w-full h-full object-cover opacity-0"
+      />
+    )}
+    <div id="loader-overlay" class="absolute inset-0 bg-primary"></div>
+  </div>
+  {imageUrl && (
+    <div id="loader-debug" class="absolute bottom-4 left-4 text-xs text-white opacity-50">
+      Debug: {imageUrl}
+    </div>
+  )}
+</div>
+
+<script>
+       // Fonction pour initialiser le loader
+     function initPageLoader() {
+       const loader = document.getElementById('page-loader');
+       const loaderImage = document.getElementById('loader-image') as HTMLImageElement;
+       const loaderOverlay = document.getElementById('loader-overlay');
+       
+       if (!loader || !window.gsap) return;
+
+         // Animation d'entrée du loader
+     function showLoader() {
+       window.gsap.set(loader, { opacity: 1 });
+       
+       if (loaderImage && loaderImage.src) {
+         // Animation de l'image avec scale de 0.6 à 1
+         window.gsap.set(loaderImage, { 
+           opacity: 0,
+           scale: 0.6 
+         });
+         
+         window.gsap.to(loaderImage, {
+           opacity: 1,
+           duration: 1.2,
+           ease: 'power2.out'
+         });
+       }
+     }
+
+    // Animation de sortie du loader
+    function hideLoader() {
+      const tl = window.gsap.timeline();
+      
+      // Animation de l'overlay
+      if (loaderOverlay) {
+        tl.to(loaderOverlay, {
+          opacity: 0,
+          duration: 0.6,
+          ease: 'power2.inOut'
+        }, 0);
+      }
+      
+      // Animation de l'image avec scale
+      if (loaderImage) {
+        tl.to(loaderImage, {
+          scale: 1,
+          duration: 0.8,
+          ease: 'power2.inOut'
+        }, 0.2);
+      }
+      
+      
+      
+      // Masquer complètement le loader
+      tl.to(loader, {
+        opacity: 0,
+        duration: 0.1,
+        ease: 'none',
+        onComplete: () => {
+          if (loader) {
+            loader.style.display = 'none';
+          }
+        }
+      }, 0.8);
+    }
+
+    // Afficher le loader au chargement
+    showLoader();
+    
+    // Masquer le loader quand la page est prête
+    window.addEventListener('load', () => {
+      setTimeout(hideLoader, 500);
+    });
+    
+    // Fallback si la page prend trop de temps
+    setTimeout(() => {
+      if (loader.style.display !== 'none') {
+        hideLoader();
+      }
+    }, 3000);
+  }
+
+  // Initialiser le loader
+  initPageLoader();
+</script> 

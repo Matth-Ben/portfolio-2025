@@ -1,12 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { fetchProjects } from '../utils/strapi';
+import { getLoaderData } from '../utils/loaderImages';
 import ProjectCard from '../components/ProjectCard.astro';
 
 const projects = await fetchProjects();
+const loaderData = await getLoaderData('projects');
 ---
 
-<Layout title="Projets - Portfolio" description="Découvrez tous mes projets et réalisations">
+<Layout 
+  title="Projets - Portfolio" 
+  description="Découvrez tous mes projets et réalisations"
+  loaderImageUrl={loaderData.imageUrl}
+  pageType="projects"
+>
   <main class="min-h-screen bg-gray-50">
     <!-- Header -->
     <section class="bg-white border-b">

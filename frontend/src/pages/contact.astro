@@ -2,11 +2,18 @@
 import Layout from '../layouts/Layout.astro';
 import RichText from '../components/RichText.astro';
 import { fetchContactData } from '../utils/strapi';
+import { getLoaderData } from '../utils/loaderImages';
 
 const contactData = await fetchContactData();
+const loaderData = await getLoaderData('contact');
 ---
 
-<Layout title="Contact - Portfolio" description="Contactez-moi pour discuter de votre projet ou pour toute question">
+<Layout 
+  title="Contact - Portfolio" 
+  description="Contactez-moi pour discuter de votre projet ou pour toute question"
+  loaderImageUrl={loaderData.imageUrl}
+  pageType="contact"
+>
   <div class="grid grid-cols-8 md:grid-cols-12 gap">
     <div class="relative col-span-7 md:col-span-11 !col-start-2">
       <!-- Mes Compétences -->
