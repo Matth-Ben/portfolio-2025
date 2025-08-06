@@ -77,3 +77,10 @@ html {
     font-family: 'Cinderblock-100', sans-serif;
   }
 }
+
+@media screen and (max-width: 767px) {
+  .ts-title {
+    font-size: 17vw;
+    line-height: 14vw;
+  }
+}
