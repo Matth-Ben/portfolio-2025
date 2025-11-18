@@ -9,65 +9,26 @@ const { projects } = Astro.props;
 ---
 
 <div class="project-carousel relative">
-    <!-- Conteneur du carrousel -->
-    <div class="carousel-container overflow-hidden">
-        <div class="carousel-track flex transition-transform duration-500 ease-in-out" id="carousel-track">
-            {projects.length > 1 && (
-              <div class="carousel-slide min-w-full flex-shrink-0">
-                <div class="relative h-dvh">
-                  <!-- Image de fond du projet -->
-                  {projects[projects.length - 1].featuredImage && (
-                    <img 
-                      src={getImageUrl(projects[projects.length - 1].featuredImage)}
-                      alt={projects[projects.length - 1].title || 'Projet'}
-                      class="absolute inset-0 w-full h-full object-cover"
+    <!-- Conteneur du carrousel avec slides superposées -->
+    <div class="carousel-container relative h-dvh overflow-hidden" id="carousel-container">
+        {/* Tous les projets sont superposés avec position absolute */}
+        {projects.map((project, index) => (
+            <div class="carousel-slide absolute inset-0 w-full h-full" data-slide-index={index} style="opacity: 0; pointer-events: none;">
+                <div class="relative h-full">
+                    <!-- Image de fond du projet -->
+                    {project.featuredImage && (
+                    <img
+                        src={getImageUrl(project.featuredImage)}
+                        alt={project.title || 'Projet'}
+                        class="absolute inset-0 w-full h-full object-cover"
                     />
-                  )}
-                  
-                  <!-- Overlay avec contenu -->
-                  <div class="absolute inset-0 bg-[#00000033]"></div>
+                    )}
+
+                    <!-- Overlay avec contenu -->
+                    <div class="absolute inset-0 bg-[#00000033]"></div>
                 </div>
-              </div>
-            )}
-            
-            {/* Projets originaux */}
-            {projects.map((project, index) => (
-                <div class="carousel-slide min-w-full flex-shrink-0">
-                    <div class="relative h-dvh">
-                        <!-- Image de fond du projet -->
-                        {project.featuredImage && (
-                        <img 
-                            src={getImageUrl(project.featuredImage)}
-                            alt={project.title || 'Projet'}
-                            class="absolute inset-0 w-full h-full object-cover"
-                        />
-                        )}
-                        
-                        <!-- Overlay avec contenu -->
-                        <div class="absolute inset-0 bg-[#00000033]"></div>
-                    </div>
-                </div>
-            ))}
-            
-            {/* Clone du premier projet à la fin pour l'effet de boucle */}
-            {projects.length > 1 && (
-                <div class="carousel-slide min-w-full flex-shrink-0">
-                    <div class="relative h-dvh">
-                        <!-- Image de fond du projet -->
-                        {projects[0].featuredImage && (
-                        <img 
-                            src={getImageUrl(projects[0].featuredImage)}
-                            alt={projects[0].title || 'Projet'}
-                            class="absolute inset-0 w-full h-full object-cover"
-                        />
-                        )}
-                        
-                        <!-- Overlay avec contenu -->
-                        <div class="absolute inset-0 bg-[#00000033]"></div>
-                    </div>
-                </div>
-            )}
-        </div>
+            </div>
+        ))}
     </div>
 
          <!-- Navigation et informations -->
@@ -153,24 +114,34 @@ const { projects } = Astro.props;
     let progressTween = null;
 
     function initCarousel() {
-        const track = document.getElementById('carousel-track');
-        const slides = track?.querySelectorAll('.carousel-slide');
+        const container = document.getElementById('carousel-container');
+        const slides = container?.querySelectorAll('.carousel-slide');
         const prevBtn = document.querySelector('.carousel-btn-prev');
         const nextBtn = document.querySelector('.carousel-btn-next');
         const progressBar = document.querySelector('.progress-bar');
-        
+
         slideCount = slides?.length || 0;
-        const originalSlideCount = slideCount - 2; // Soustraire les 2 slides clonés
-        
-        if (slideCount <= 3) return; // Au moins 3 slides (1 original + 2 clones)
-        
+
+        if (slideCount <= 1) return; // Au moins 2 slides
+
         // Variables pour la barre de progression
         const slideDuration = 5; // 5 secondes
-        
-        // Commencer à l'index 1 (premier projet original)
-        currentSlide = 1;
-        updateTrack();
+
+        // 🔄 RESTAURER la slide sauvegardée si elle existe
+        const savedSlide = sessionStorage.getItem('homeCarouselSlide');
+        if (savedSlide !== null) {
+            const savedIndex = parseInt(savedSlide, 10);
+            currentSlide = savedIndex;
+            console.log('🔄 Restauration de la slide:', savedIndex);
+        } else {
+            // Commencer à l'index 0 par défaut
+            currentSlide = 0;
+        }
+
+        // Afficher la slide initiale
+        updateSlideVisibility(true); // true = sans animation
         updateProjectInfo();
+
         bindEvents();
        
         // S'assurer que la barre de progression commence à 0%
@@ -195,103 +166,116 @@ const { projects } = Astro.props;
             });
         }
       
+        // Fonction pour afficher/masquer les slides avec opacité
+        function updateSlideVisibility(instant = false) {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const duration = instant ? 0 : 0.6;
+
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    // Slide active : fade in
+                    if (window.gsap) {
+                        window.gsap.to(slide, {
+                            opacity: 1,
+                            duration,
+                            ease: 'power2.inOut',
+                            onStart: () => {
+                                slide.style.pointerEvents = 'auto';
+                            }
+                        });
+                    } else {
+                        slide.style.opacity = '1';
+                        slide.style.pointerEvents = 'auto';
+                    }
+                } else {
+                    // Autres slides : fade out
+                    if (window.gsap) {
+                        window.gsap.to(slide, {
+                            opacity: 0,
+                            duration,
+                            ease: 'power2.inOut',
+                            onComplete: () => {
+                                slide.style.pointerEvents = 'none';
+                            }
+                        });
+                    } else {
+                        slide.style.opacity = '0';
+                        slide.style.pointerEvents = 'none';
+                    }
+                }
+            });
+        }
+
         function goToSlide(index) {
-            currentSlide = index + 1; // +1 car on commence à l'index 1
-            updateTrack();
+            currentSlide = index;
+            updateSlideVisibility();
             updateProjectInfo();
             resetProgressBar();
-            
+
             // Délai avant de démarrer la barre de progression
             setTimeout(() => {
                 startProgressBar();
-            }, 500);
+            }, 600);
         }
-      
+
         function nextSlide() {
             currentSlide++;
-         
-            // Si on arrive au clone du premier projet (dernier slide)
-            if (currentSlide >= slideCount - 1) {
-                setTimeout(() => {
-                    if (track) {
-                        track.style.transition = 'none';
-                        currentSlide = 1; // Retour au premier projet original
-                        updateTrack();
-                        setTimeout(() => {
-                            if (track) {
-                                track.style.transition = 'transform 0.5s ease-in-out';
-                            }
-                        }, 10);
-                    }
-                }, 500);
+
+            // Boucle : retour au début
+            if (currentSlide >= slideCount) {
+                currentSlide = 0;
             }
-         
-            updateTrack();
+
+            updateSlideVisibility();
             updateProjectInfo();
             resetProgressBar();
-         
+
             // Délai avant de démarrer la barre de progression
             setTimeout(() => {
                 startProgressBar();
-            }, 500);
+            }, 600);
        }
-      
+
         function prevSlide() {
             currentSlide--;
-            
-            // Si on arrive au clone du dernier projet (premier slide)
-            if (currentSlide <= 0) {
-                setTimeout(() => {
-                    if (track) {
-                        track.style.transition = 'none';
-                        currentSlide = slideCount - 2; // Retour au dernier projet original
-                        updateTrack();
-                        setTimeout(() => {
-                            if (track) {
-                                track.style.transition = 'transform 0.5s ease-in-out';
-                            }
-                        }, 10);
-                    }
-                }, 500);
+
+            // Boucle : aller à la fin
+            if (currentSlide < 0) {
+                currentSlide = slideCount - 1;
             }
-            
-            updateTrack();
+
+            updateSlideVisibility();
             updateProjectInfo();
             resetProgressBar();
-            
+
             // Délai avant de démarrer la barre de progression
             setTimeout(() => {
                 startProgressBar();
-            }, 500);
-        }
-      
-        function updateTrack() {
-            if (track) {
-                track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            }
+            }, 600);
         }
       
         function updateProjectInfo() {
             const projectTitle = document.querySelector('.project-title');
             const projectCounter = document.querySelector('.project-counter');
             const discoverBtn = document.querySelector('.discover-btn');
-            
-            // Calculer l'index du projet original (en tenant compte des clones)
-            let originalIndex = currentSlide - 1;
-            if (originalIndex < 0) originalIndex = originalSlideCount - 1;
-            if (originalIndex >= originalSlideCount) originalIndex = 0;
-            
+
+            // L'index actuel correspond directement au projet
+            const originalIndex = currentSlide;
+
+            // 💾 SAUVEGARDER la slide active globalement
+            sessionStorage.setItem('homeCarouselSlide', originalIndex.toString());
+
             // Mettre à jour le titre
             if (projectTitle) {
                 const project = projectsData[originalIndex];
                 projectTitle.textContent = project?.title || 'Projet sans titre';
             }
-            
+
             // Mettre à jour le compteur
             if (projectCounter) {
-                projectCounter.textContent = `(0${originalIndex + 1} / 0${originalSlideCount})`;
+                projectCounter.textContent = `0${originalIndex + 1} / 0${slideCount}`;
             }
-            
+
             // Mettre à jour le lien du bouton Discover
             if (discoverBtn) {
                 const project = projectsData[originalIndex];
