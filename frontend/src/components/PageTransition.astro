@@ -47,6 +47,7 @@
       document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
         const link = target?.closest('a');
+
         if (!link) return;
 
         const href = link.getAttribute('href');
@@ -58,15 +59,17 @@
 
         e.preventDefault();
 
-        // Ajouter l'état dans l'historique pour tracking
+        // Sauvegarder l'URL actuelle AVANT de la changer
+        const fromUrl = currentUrl;
         const fullUrl = new URL(href, window.location.origin).href;
-        window.history.pushState({ from: currentUrl, to: fullUrl }, '', href);
 
         // Préparer la transition (stocke le type dans sessionStorage)
-        transitionManager.prepareTransition(fullUrl);
+        // IMPORTANT: Utiliser fromUrl au lieu de window.location.href
+        transitionManager.prepareTransitionFromTo(fromUrl, fullUrl);
 
         // Exécuter la transition de sortie puis naviguer
-        transitionManager.transitionTo(fullUrl);
+        // Note: On ne fait pas de pushState ici car transitionToFrom fait déjà window.location.href
+        transitionManager.transitionToFrom(fullUrl, fromUrl);
       });
 
       // Gérer les boutons retour/avant du navigateur

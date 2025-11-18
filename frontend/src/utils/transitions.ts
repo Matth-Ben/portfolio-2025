@@ -19,7 +19,8 @@ export type TransitionType =
   | 'slideRight'     // Slide vers la droite
   | 'scale'          // Zoom in/out
   | 'wipe'           // Wipe avec overlay
-  | 'curtain';       // Rideau vertical
+  | 'curtain'        // Rideau vertical
+  | 'carouselMorph'; // Morphing du carousel (Home ↔ Contact)
 
 export type PageRoute = '/' | '/about' | '/contact' | '/projects' | '/projects/[slug]';
 
@@ -27,7 +28,7 @@ export type PageRoute = '/' | '/about' | '/contact' | '/projects' | '/projects/[
 const ROUTE_TRANSITIONS: Record<string, TransitionType> = {
   // Transitions depuis la home
   'home->about': 'slideLeft',
-  'home->contact': 'wipe',
+  'home->contact': 'carouselMorph',
   'home->projects': 'slideUp',
 
   // Transitions depuis about
@@ -36,7 +37,7 @@ const ROUTE_TRANSITIONS: Record<string, TransitionType> = {
   'about->projects': 'slideUp',
 
   // Transitions depuis contact
-  'contact->home': 'curtain',
+  'contact->home': 'carouselMorph',
   'contact->about': 'fade',
   'contact->projects': 'slideUp',
 
@@ -70,12 +71,15 @@ export class PageTransitionManager {
   private getPageTypeFromUrl(url: string): string {
     const path = new URL(url, window.location.origin).pathname;
 
+    console.log('🔍 getPageTypeFromUrl - url:', url, 'pathname:', path);
+
     if (path === '/') return 'home';
     if (path === '/about') return 'about';
     if (path === '/contact') return 'contact';
     if (path === '/projects') return 'projects';
     if (path.startsWith('/projects/')) return 'single-project';
 
+    console.warn('⚠️ Page type not found for path:', path);
     return 'default';
   }
 
@@ -97,6 +101,8 @@ export class PageTransitionManager {
         transition = reverseTransition;
       }
     }
+
+    console.log(`🎬 Transition détectée: ${key} → ${transition}`, { fromUrl, toUrl, isBack });
 
     return transition;
   }
@@ -217,6 +223,12 @@ export class PageTransitionManager {
         case 'curtain':
           // Ces transitions utilisent l'overlay
           this.overlayTransition('in', { duration, ease }).then(resolve);
+          break;
+
+        case 'carouselMorph':
+          // Transition spéciale pour le morphing du carousel
+          // Ne pas animer le main, seulement le carousel
+          this.carouselMorphTransition('exit', { duration: 1.2, ease: 'power3.inOut' }).then(resolve);
           break;
 
         default:
@@ -350,6 +362,13 @@ export class PageTransitionManager {
             });
           break;
 
+        case 'carouselMorph':
+          // Transition spéciale pour le morphing du carousel
+          // S'assurer que le main est visible mais ne pas l'animer
+          window.gsap.set(mainContent, { opacity: 1, x: 0, y: 0, scale: 1, clearProps: 'transform' });
+          this.carouselMorphTransition('enter', { duration: 1.2, ease: 'power3.inOut' }).then(resolve);
+          break;
+
         default:
           window.gsap.fromTo(mainContent,
             { opacity: 0, y: 50, x: 0, scale: 1 },
@@ -399,7 +418,16 @@ export class PageTransitionManager {
       this.trackNavigation(window.location.href);
 
       const transitionType = this.getTransitionType(window.location.href, url, false);
+      console.log(`🚀 transitionTo - url: ${url}, type: ${transitionType}`);
+
       await this.exitWithTransition(transitionType, options);
+
+      console.log('📍 Avant navigation - sessionStorage pendingTransition:', sessionStorage.getItem('pendingTransition'));
+
+      // Petit délai pour s'assurer que le sessionStorage est bien écrit
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      console.log('🔄 Navigation vers:', url);
       window.location.href = url;
     } catch (error) {
       console.error('Erreur lors de la transition:', error);
@@ -457,10 +485,101 @@ export class PageTransitionManager {
     });
   }
 
+  // Animation du morphing du carousel (Home ↔ Contact)
+  carouselMorphTransition(direction: 'exit' | 'enter', options: TransitionOptions = {}): Promise<void> {
+    const { duration = 1.2, ease = 'power3.inOut' } = options;
+
+    return new Promise((resolve) => {
+      const carousel = document.querySelector('.project-carousel');
+      const container = document.querySelector('.carousel-container');
+      const navigationInfo = document.getElementById('navigation-info');
+
+      if (!carousel || !container) {
+        resolve();
+        return;
+      }
+
+      if (direction === 'exit') {
+        // HOME → CONTACT : Réduire le carousel
+
+        // 1. Stopper le carousel auto-play si présent
+        sessionStorage.setItem('carouselMorphActive', 'true');
+        window.dispatchEvent(new CustomEvent('pauseCarousel'));
+
+        const tl = window.gsap.timeline({ onComplete: resolve });
+
+        // 2. Masquer #navigation-info
+        if (navigationInfo) {
+          tl.to(navigationInfo, {
+            opacity: 0,
+            duration: 0.3,
+            ease: 'power2.out'
+          }, 0);
+        }
+
+        // 3. Réduire .carousel-container
+        tl.to(container, {
+          width: '120px',
+          height: 'calc(100dvh - 40px)',
+          left: '0',
+          top: '20px',
+          position: 'fixed',
+          duration,
+          ease,
+          onStart: () => {
+            // Ajouter une classe pour indiquer l'état morphé
+            carousel.classList.add('morphed');
+          }
+        }, 0.2);
+
+      } else {
+        // CONTACT → HOME : Agrandir le carousel
+
+        const tl = window.gsap.timeline({
+          onComplete: () => {
+            // Retirer la classe morphed
+            carousel.classList.remove('morphed');
+            sessionStorage.removeItem('carouselMorphActive');
+
+            // Redémarrer le carousel
+            window.dispatchEvent(new CustomEvent('resumeCarousel'));
+            resolve();
+          }
+        });
+
+        // 1. Agrandir .carousel-container
+        tl.to(container, {
+          width: '100%',
+          height: '100dvh',
+          left: '0',
+          top: '0',
+          position: 'relative',
+          duration,
+          ease
+        }, 0);
+
+        // 2. Réafficher #navigation-info
+        if (navigationInfo) {
+          tl.fromTo(navigationInfo,
+            { opacity: 0 },
+            {
+              opacity: 1,
+              duration: 0.4,
+              ease: 'power2.out'
+            },
+            duration * 0.7 // Commence après 70% de l'agrandissement
+          );
+        }
+      }
+    });
+  }
+
   // Initialiser les animations d'entrée au chargement de la page
   initPageEnter(): void {
     // Récupérer le type de transition depuis le sessionStorage (défini lors de la navigation précédente)
-    const transitionType = (sessionStorage.getItem('pendingTransition') as TransitionType) || 'fade';
+    const storedTransition = sessionStorage.getItem('pendingTransition');
+    const transitionType = (storedTransition as TransitionType) || 'fade';
+
     sessionStorage.removeItem('pendingTransition');
 
     // Réduire le délai pour éviter le flash - l'animation démarre immédiatement
@@ -471,6 +590,33 @@ export class PageTransitionManager {
   prepareTransition(toUrl: string): void {
     const transitionType = this.getTransitionType(window.location.href, toUrl);
     sessionStorage.setItem('pendingTransition', transitionType);
+  }
+
+  // Stocker le type de transition avec URLs explicites (version recommandée)
+  prepareTransitionFromTo(fromUrl: string, toUrl: string): void {
+    const transitionType = this.getTransitionType(fromUrl, toUrl);
+    sessionStorage.setItem('pendingTransition', transitionType);
+  }
+
+  // Transition avec URLs explicites (version recommandée)
+  async transitionToFrom(toUrl: string, fromUrl: string, options: TransitionOptions = {}): Promise<void> {
+    if (this.isTransitioning) return;
+
+    this.isTransitioning = true;
+
+    try {
+      // Tracker la navigation
+      this.trackNavigation(fromUrl);
+
+      const transitionType = this.getTransitionType(fromUrl, toUrl, false);
+      await this.exitWithTransition(transitionType, options);
+
+      // Navigation vers la nouvelle page
+      window.location.href = toUrl;
+    } catch (error) {
+      console.error('Erreur lors de la transition:', error);
+      this.isTransitioning = false;
+    }
   }
 
   // Réinitialiser l'état de transition

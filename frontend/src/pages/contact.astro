@@ -1,20 +1,40 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RichText from '../components/RichText.astro';
+import ProjectCarousel from '../components/ProjectCarousel.astro';
 import { fetchContactData } from '../utils/strapi';
+import { fetchProjectSlugs } from '../utils/strapi';
 import { getLoaderData } from '../utils/loaderImages';
 
 const contactData = await fetchContactData();
 const loaderData = await getLoaderData('contact');
+
+// Récupérer les projets pour le carousel miniature
+const projects = await fetchProjectSlugs();
 ---
 
-<Layout 
-  title="Contact - Portfolio" 
+<Layout
+  title="Contact - Portfolio"
   description="Contactez-moi pour discuter de votre projet ou pour toute question"
   loaderImageUrl={loaderData.imageUrl}
   pageType="contact"
 >
-  <div class="grid grid-cols-8 md:grid-cols-12 gap">
+  <!-- Carousel miniature avec position fixe -->
+  <div id="contact-carousel-mini" class="fixed left-0 top-[20px] w-[120px] h-[calc(100dvh-40px)] z-50" data-context="contact">
+    <ProjectCarousel projects={projects} isContactPage={true} />
+
+    <!-- Lien retour vers Home -->
+    <a
+      href="/"
+      id="back-to-home-link"
+      class="absolute top-1/2 -translate-y-1/2 left-0 z-10 w-full text-center ts-body text-white"
+      aria-label="Retour à l'accueil"
+    >
+      ← Home
+    </a>
+  </div>
+
+  <div class="grid grid-cols-8 md:grid-cols-12 gap" id="contact-content">
     <div class="relative col-span-7 md:col-span-11 !col-start-2">
       <!-- Mes Compétences -->
       <section class="absolute left-0 top-0 w-full p-[2rem]">
@@ -55,4 +75,93 @@ const loaderData = await getLoaderData('contact');
       )}
     </div>
   </div>
-</Layout> 
+</Layout>
+
+<script>
+  // Gérer l'affichage du carousel miniature sur la page Contact
+  function initContactCarousel() {
+    const carouselMini = document.getElementById('contact-carousel-mini');
+    const contactContent = document.getElementById('contact-content');
+    const backLink = document.getElementById('back-to-home-link');
+
+    // Vérifier si on vient de Home avec la transition carouselMorph
+    const isMorphTransition = sessionStorage.getItem('carouselMorphActive') === 'true';
+
+    if (isMorphTransition && carouselMini) {
+      // Afficher le carousel miniature
+      setTimeout(() => {
+        if (window.gsap) {
+          // Fade in du carousel et du lien
+          window.gsap.to(carouselMini, {
+            opacity: 1,
+            duration: 0.4,
+            ease: 'power2.out',
+            onStart: () => {
+              carouselMini.style.pointerEvents = 'auto';
+            }
+          });
+
+          // Fade in du contenu avec délai
+          if (contactContent) {
+            window.gsap.fromTo(contactContent,
+              { opacity: 0, y: 20 },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: 'power2.out',
+                delay: 0.3
+              }
+            );
+          }
+        } else {
+          carouselMini.style.opacity = '1';
+          carouselMini.style.pointerEvents = 'auto';
+        }
+      }, 600); // Délai pour attendre la fin du morphing
+    } else {
+      // Transition normale sans carousel
+      if (contactContent && window.gsap) {
+        window.gsap.fromTo(contactContent,
+          { opacity: 0, y: 20 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power2.out'
+          }
+        );
+      }
+    }
+
+    // Gérer le clic sur le lien retour
+    if (backLink) {
+      backLink.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Masquer le contenu de contact
+        if (contactContent && window.gsap) {
+          window.gsap.to(contactContent, {
+            opacity: 0,
+            y: -20,
+            duration: 0.3,
+            ease: 'power2.in'
+          });
+        }
+
+        // Laisser le carousel visible (il sera agrandi par la transition)
+        // Naviguer après un court délai
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 400);
+      });
+    }
+  }
+
+  // Initialiser quand le DOM est prêt
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initContactCarousel);
+  } else {
+    initContactCarousel();
+  }
+</script> 
