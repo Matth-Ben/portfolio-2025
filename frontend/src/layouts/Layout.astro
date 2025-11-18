@@ -2,7 +2,7 @@
 import LenisProvider from '../components/LenisProvider.astro';
 import ScrollAnimations from '../components/ScrollAnimations.astro';
 import PageTransition from '../components/PageTransition.astro';
-import PageLoader from '../components/PageLoader.astro';
+// import PageLoader from '../components/PageLoader.astro';
 import '../styles/global.css';
 
 export interface Props {
@@ -35,15 +35,22 @@ const {
     <script>
       // Initialiser GSAP globalement
       import { gsap } from 'gsap';
+
+      declare global {
+        interface Window {
+          gsap: typeof gsap;
+        }
+      }
+
       window.gsap = gsap;
     </script>
   </head>
   <body class="bg-primary text-secondary">
-    <PageLoader imageUrl={loaderImageUrl} pageType={pageType} />
-    <!-- <PageTransition /> -->
+    <!-- <PageLoader imageUrl={loaderImageUrl} pageType={pageType} /> -->
+    <PageTransition />
     <LenisProvider />
     <ScrollAnimations />
-    <main id="swup">
+    <main id="swup" style="opacity: 0;">
       <slot />
     </main>
   </body>

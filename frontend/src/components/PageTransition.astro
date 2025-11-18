@@ -1,5 +1,5 @@
 ---
-// Composant de transition de page avec GSAP
+// Composant de transition de page avec GSAP - Transitions personnalisées par route
 ---
 
 <div id="page-transition" class="fixed inset-0 z-50 pointer-events-none">
@@ -7,62 +7,19 @@
 </div>
 
 <script>
+  import { PageTransitionManager } from '../utils/transitions';
+
   // Fonction pour initialiser les transitions de page
   function initPageTransitions() {
-    const transitionOverlay = document.getElementById('transition-overlay');
-    
-    if (!transitionOverlay) return;
+    const transitionManager = PageTransitionManager.getInstance();
 
-    // Animation d'entrée de la page
-    function pageEnter() {
-      window.gsap.set(transitionOverlay, { y: '100%' });
-      window.gsap.to(transitionOverlay, {
-        y: '0%',
-        duration: 0.6,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          // Animation de sortie
-          window.gsap.to(transitionOverlay, {
-            y: '-100%',
-            duration: 0.6,
-            ease: 'power2.inOut',
-            delay: 0.1
-          });
-        }
-      });
+    // Vérifier que GSAP est disponible
+    if (!window.gsap) {
+      console.warn('GSAP not loaded, page transitions disabled');
+      return;
     }
 
-    // Animation de sortie de la page
-    function pageExit() {
-      window.gsap.set(transitionOverlay, { y: '-100%' });
-      window.gsap.to(transitionOverlay, {
-        y: '0%',
-        duration: 0.6,
-        ease: 'power2.inOut'
-      });
-    }
-
-    // Animation d'entrée du contenu principal
-    function animatePageContent() {
-      const mainContent = document.querySelector('main');
-      if (!mainContent) return;
-
-      window.gsap.set(mainContent, { 
-        opacity: 0, 
-        y: 50 
-      });
-      
-      window.gsap.to(mainContent, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power2.out',
-        delay: 0.3
-      });
-    }
-
-    // Initialiser l'animation d'entrée au chargement de la page
-    // Attendre que le loader soit terminé
+    // Fonction pour démarrer la transition d'entrée
     function startPageTransition() {
       const loader = document.getElementById('page-loader');
       if (loader && loader.style.display !== 'none') {
@@ -70,9 +27,9 @@
         setTimeout(startPageTransition, 100);
         return;
       }
-      
-      pageEnter();
-      animatePageContent();
+
+      // Initialiser l'animation d'entrée basée sur la transition précédente
+      transitionManager.initPageEnter();
     }
 
     if (document.readyState === 'loading') {
@@ -83,7 +40,8 @@
 
     // Gérer les transitions lors de la navigation
     if (typeof window !== 'undefined' && window.history) {
-      let isTransitioning = false;
+      // Stocker l'URL actuelle pour détecter le sens de navigation
+      let currentUrl = window.location.href;
 
       // Intercepter les clics sur les liens internes
       document.addEventListener('click', (e) => {
@@ -92,25 +50,52 @@
         if (!link) return;
 
         const href = link.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) return;
+
+        // Ignorer les liens externes, ancres, mailto, etc.
+        if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) {
+          return;
+        }
 
         e.preventDefault();
-        
-        if (isTransitioning) return;
-        isTransitioning = true;
 
-        // Animation de sortie
-        pageExit();
-        
-        setTimeout(() => {
-          window.location.href = href;
-        }, 600);
+        // Ajouter l'état dans l'historique pour tracking
+        const fullUrl = new URL(href, window.location.origin).href;
+        window.history.pushState({ from: currentUrl, to: fullUrl }, '', href);
+
+        // Préparer la transition (stocke le type dans sessionStorage)
+        transitionManager.prepareTransition(fullUrl);
+
+        // Exécuter la transition de sortie puis naviguer
+        transitionManager.transitionTo(fullUrl);
       });
 
-      // Réinitialiser le flag lors du chargement d'une nouvelle page
-      window.addEventListener('pageshow', () => {
-        isTransitioning = false;
+      // Gérer les boutons retour/avant du navigateur
+      window.addEventListener('popstate', (e) => {
+        const newUrl = window.location.href;
+
+        // Préparer la transition pour le retour en arrière
+        transitionManager.prepareTransition(newUrl);
+
+        // Exécuter la transition puis recharger
+        transitionManager.exitWithNavigate(newUrl, { skipHistoryPush: true });
       });
+
+      // Réinitialiser l'état lors du chargement d'une nouvelle page
+      window.addEventListener('pageshow', (e) => {
+        transitionManager.reset();
+
+        // Détecter si c'est un retour via cache du navigateur (bfcache)
+        if (e.persisted) {
+          // Réinitialiser l'état visuel si la page vient du cache
+          const mainContent = document.querySelector('main');
+          if (mainContent) {
+            window.gsap.set(mainContent, { opacity: 1, x: 0, y: 0, scale: 1, clearProps: 'transform' });
+          }
+        }
+      });
+
+      // Mettre à jour l'URL actuelle après chaque navigation
+      currentUrl = window.location.href;
     }
   }
 
